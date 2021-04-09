@@ -1,0 +1,7 @@
+/* Generated automatically. */
+static const char configuration_arguments[] = "../gcc/configure --enable-languages=c,c++ --target=aarch64-elf --prefix=/drone/src/builder/aarch64-elf --with-newlib --disable-multilib --disable-werror CFLAGS='-g0 -O3 -fstack-protector-strong' CXXFLAGS='-g0 -O3 -fstack-protector-strong'";
+static const char thread_model[] = "single";
+
+static const struct {
+  const char *name, *value;
+} configure_default_options[] = { { NULL, NULL} };
