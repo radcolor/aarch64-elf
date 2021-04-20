@@ -19,7 +19,7 @@ import gdb
 import os
 import os.path
 
-pythondir = '/drone/src/builder/aarch64-elf/share/gcc-11.0.1/python'
+pythondir = '/drone/src/builder/aarch64-elf/share/gcc-12.0.0/python'
 libdir = '/drone/src/builder/aarch64-elf/aarch64-elf/lib'
 
 # This file might be loaded when there is no current objfile.  This
