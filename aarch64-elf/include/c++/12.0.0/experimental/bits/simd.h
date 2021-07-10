@@ -45,6 +45,9 @@
 #include <arm_neon.h>
 #endif
 
+/** @ingroup ts_simd
+ * @{
+ */
 /* There are several closely related types, with the following naming
  * convention:
  * _Tp: vectorizable (arithmetic) type (or any type)
@@ -1602,7 +1605,9 @@ template <typename _To, typename _From>
   _GLIBCXX_SIMD_INTRINSIC constexpr _To
   __bit_cast(const _From __x)
   {
-    // TODO: implement with / replace by __builtin_bit_cast ASAP
+#if __has_builtin(__builtin_bit_cast)
+    return __builtin_bit_cast(_To, __x);
+#else
     static_assert(sizeof(_To) == sizeof(_From));
     constexpr bool __to_is_vectorizable
       = is_arithmetic_v<_To> || is_enum_v<_To>;
@@ -1633,6 +1638,7 @@ template <typename _To, typename _From>
 			 reinterpret_cast<const char*>(&__x), sizeof(_To));
 	return __r;
       }
+#endif
   }
 
 // }}}
@@ -2904,6 +2910,58 @@ template <typename _Tp, typename _Up, typename _Ap,
     return {__private_init, _RM::abi_type::_MaskImpl::template _S_convert<
 			      typename _RM::simd_type::value_type>(__x)};
   }
+
+template <typename _To, typename _Up, typename _Abi>
+  _GLIBCXX_SIMD_INTRINSIC _GLIBCXX_SIMD_CONSTEXPR
+  _To
+  simd_bit_cast(const simd<_Up, _Abi>& __x)
+  {
+    using _Tp = typename _To::value_type;
+    using _ToMember = typename _SimdTraits<_Tp, typename _To::abi_type>::_SimdMember;
+    using _From = simd<_Up, _Abi>;
+    using _FromMember = typename _SimdTraits<_Up, _Abi>::_SimdMember;
+    // with concepts, the following should be constraints
+    static_assert(sizeof(_To) == sizeof(_From));
+    static_assert(is_trivially_copyable_v<_Tp> && is_trivially_copyable_v<_Up>);
+    static_assert(is_trivially_copyable_v<_ToMember> && is_trivially_copyable_v<_FromMember>);
+#if __has_builtin(__builtin_bit_cast)
+    return {__private_init, __builtin_bit_cast(_ToMember, __data(__x))};
+#else
+    return {__private_init, __bit_cast<_ToMember>(__data(__x))};
+#endif
+  }
+
+template <typename _To, typename _Up, typename _Abi>
+  _GLIBCXX_SIMD_INTRINSIC _GLIBCXX_SIMD_CONSTEXPR
+  _To
+  simd_bit_cast(const simd_mask<_Up, _Abi>& __x)
+  {
+    using _From = simd_mask<_Up, _Abi>;
+    static_assert(sizeof(_To) == sizeof(_From));
+    static_assert(is_trivially_copyable_v<_From>);
+    // _To can be simd<T, A>, specifically simd<T, fixed_size<N>> in which case _To is not trivially
+    // copyable.
+    if constexpr (is_simd_v<_To>)
+      {
+	using _Tp = typename _To::value_type;
+	using _ToMember = typename _SimdTraits<_Tp, typename _To::abi_type>::_SimdMember;
+	static_assert(is_trivially_copyable_v<_ToMember>);
+#if __has_builtin(__builtin_bit_cast)
+	return {__private_init, __builtin_bit_cast(_ToMember, __x)};
+#else
+	return {__private_init, __bit_cast<_ToMember>(__x)};
+#endif
+      }
+    else
+      {
+	static_assert(is_trivially_copyable_v<_To>);
+#if __has_builtin(__builtin_bit_cast)
+	return __builtin_bit_cast(_To, __x);
+#else
+	return __bit_cast<_To>(__x);
+#endif
+      }
+  }
 } // namespace __proposed
 
 // simd_cast {{{2
@@ -3980,6 +4038,7 @@ template <typename _Tp, typename _Abi, size_t _Np>
 
 // }}}
 
+/// @cond undocumented
 // _SmartReference {{{
 template <typename _Up, typename _Accessor = _Up,
 	  typename _ValueType = typename _Up::value_type>
@@ -4261,6 +4320,7 @@ template <typename _Tp, size_t _Np, typename>
   struct __deduce_impl : public __deduce_fixed_size_fallback<_Tp, _Np> {};
 
 //}}}1
+/// @endcond
 
 // simd_mask {{{
 template <typename _Tp, typename _Abi>
@@ -4608,6 +4668,7 @@ template <typename _Tp, typename _Abi>
 
 // }}}
 
+/// @cond undocumented
 // __data(simd_mask) {{{
 template <typename _Tp, typename _Ap>
   _GLIBCXX_SIMD_INTRINSIC constexpr const auto&
@@ -4620,6 +4681,7 @@ template <typename _Tp, typename _Ap>
   { return __x._M_data; }
 
 // }}}
+/// @endcond
 
 // simd_mask reductions [simd_mask.reductions] {{{
 template <typename _Tp, typename _Abi>
@@ -4762,6 +4824,7 @@ find_last_set(_ExactBool)
 
 // }}}
 
+/// @cond undocumented
 // _SimdIntOperators{{{1
 template <typename _V, typename _Impl, bool>
   class _SimdIntOperators {};
@@ -4882,6 +4945,7 @@ template <typename _V, typename _Impl>
   };
 
 //}}}1
+/// @endcond
 
 // simd {{{
 template <typename _Tp, typename _Abi>
@@ -5157,6 +5221,7 @@ template <typename _Tp, typename _Abi>
   };
 
 // }}}
+/// @cond undocumented
 // __data {{{
 template <typename _Tp, typename _Ap>
   _GLIBCXX_SIMD_INTRINSIC constexpr const auto&
@@ -5200,7 +5265,9 @@ template <typename _Tp, typename _Ap>
   operator~(const simd<_Tp, _Ap>& __a)
   { return {__private_init, _Ap::_SimdImpl::_S_complement(__data(__a))}; }
 } // namespace __float_bitwise_operators }}}
+/// @endcond
 
+/// @}
 _GLIBCXX_SIMD_END_NAMESPACE
 
 #endif // __cplusplus >= 201703L
