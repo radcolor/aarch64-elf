@@ -4,7 +4,7 @@
 ;;; Don't parse this file wihout knowing GCC gengtype internals.
 ;;; This file should be parsed by the same gengtype which wrote it.
 
-(!version  "12.0.0 20210710 (experimental)")
+(!version  "12.0.0 20210714 (experimental)")
 (!srcdir  "../../gcc/gcc")
 (!languages 10 ada c cp d fortran go jit lto objc objcp)
 (!fileslist 227
@@ -13578,49 +13578,49 @@
                            (!type struct 579 
                             (!type already_seen 578)
                             gc_pointed_to "target_rtl"
-                            (!srcfileloc  "rtl.h" 3898)
+                            (!srcfileloc  "rtl.h" 3899)
                             (!fields 8 
                              (!pair  "x_global_rtl"
                               (!type array 580 nil  gc_used "GR_MAX" 
                                (!type already_seen 99)
                               )
-                              (!srcfileloc  "rtl.h" 3870)
+                              (!srcfileloc  "rtl.h" 3871)
                               nil )
                              (!pair  "x_pic_offset_table_rtx"
                               (!type already_seen 99)
-                              (!srcfileloc  "rtl.h" 3873)
+                              (!srcfileloc  "rtl.h" 3874)
                               nil )
                              (!pair  "x_return_address_pointer_rtx"
                               (!type already_seen 99)
-                              (!srcfileloc  "rtl.h" 3878)
+                              (!srcfileloc  "rtl.h" 3879)
                               nil )
                              (!pair  "x_initial_regno_reg_rtx"
                               (!type array 581 nil  gc_used "FIRST_PSEUDO_REGISTER" 
                                (!type already_seen 99)
                               )
-                              (!srcfileloc  "rtl.h" 3884)
+                              (!srcfileloc  "rtl.h" 3885)
                               nil )
                              (!pair  "x_top_of_stack"
                               (!type array 582 nil  gc_used "MAX_MACHINE_MODE" 
                                (!type already_seen 99)
                               )
-                              (!srcfileloc  "rtl.h" 3887)
+                              (!srcfileloc  "rtl.h" 3888)
                               nil )
                              (!pair  "x_static_reg_base_value"
                               (!type array 583 nil  gc_used "FIRST_PSEUDO_REGISTER" 
                                (!type already_seen 99)
                               )
-                              (!srcfileloc  "rtl.h" 3891)
+                              (!srcfileloc  "rtl.h" 3892)
                               nil )
                              (!pair  "x_mode_mem_attrs"
                               (!type array 584 nil  gc_used "(int) MAX_MACHINE_MODE" 
                                (!type already_seen 224)
                               )
-                              (!srcfileloc  "rtl.h" 3894)
+                              (!srcfileloc  "rtl.h" 3895)
                               nil )
                              (!pair  "target_specific_initialized"
                               (!type already_seen 2)
-                              (!srcfileloc  "rtl.h" 3897)
+                              (!srcfileloc  "rtl.h" 3898)
                               nil )
                             )
                             nil 1023 nil nil )
@@ -16984,15 +16984,15 @@
      (!type struct 821 
       (!type already_seen 820)
       gc_pointed_to "cgraph_rtl_info"
-      (!srcfileloc  "rtl.h" 4536)
+      (!srcfileloc  "rtl.h" 4537)
       (!fields 2 
        (!pair  "preferred_incoming_stack_boundary"
         (!type already_seen 2)
-        (!srcfileloc  "rtl.h" 4531)
+        (!srcfileloc  "rtl.h" 4532)
         nil )
        (!pair  "function_used_regs"
         (!type already_seen 2)
-        (!srcfileloc  "rtl.h" 4535)
+        (!srcfileloc  "rtl.h" 4536)
         nil )
       )
       nil 1023 nil nil )
@@ -26131,7 +26131,7 @@
   )
  )
  
- (!type struct 1849 nil  gc_unused "anonymous:../../gcc/gcc/ada/gcc-interface/decl.c:257"nil 
+ (!type struct 1849 nil  gc_unused "anonymous:../../gcc/gcc/ada/gcc-interface/decl.c:258"nil 
   (!fields 0 )
   nil 0 nil nil )
  
@@ -31298,11 +31298,11 @@
   nil )
  (!pair  "vinfo_t"
   (!type already_seen 1851)
-  (!srcfileloc  "ada/gcc-interface/decl.c" 7661)
+  (!srcfileloc  "ada/gcc-interface/decl.c" 7727)
   nil )
  (!pair  "intrin_binding_t"
   (!type already_seen 1849)
-  (!srcfileloc  "ada/gcc-interface/decl.c" 261)
+  (!srcfileloc  "ada/gcc-interface/decl.c" 262)
   nil )
  (!pair  "dummy_type_hasher"
   (!type already_seen 1846)
@@ -33334,15 +33334,15 @@
   nil )
  (!pair  "hash_rtx_callback_function"
   (!type already_seen 2)
-  (!srcfileloc  "rtl.h" 3687)
+  (!srcfileloc  "rtl.h" 3688)
   nil )
  (!pair  "rtx_equal_p_callback_function"
   (!type already_seen 2)
-  (!srcfileloc  "rtl.h" 3682)
+  (!srcfileloc  "rtl.h" 3683)
   nil )
  (!pair  "for_each_inc_dec_fn"
   (!type already_seen 2)
-  (!srcfileloc  "rtl.h" 3678)
+  (!srcfileloc  "rtl.h" 3679)
   nil )
  (!pair  "rtx_to_poly_wide_ref"
   (!type already_seen 907)
@@ -37278,27 +37278,27 @@
   nil )
  (!pair  "stack_limit_rtx"
   (!type already_seen 99)
-  (!srcfileloc  "rtl.h" 4466)
+  (!srcfileloc  "rtl.h" 4467)
   nil )
  (!pair  "default_target_rtl"
   (!type already_seen 579)
-  (!srcfileloc  "rtl.h" 3900)
+  (!srcfileloc  "rtl.h" 3901)
   nil )
  (!pair  "invalid_insn_rtx"
   (!type already_seen 293)
-  (!srcfileloc  "rtl.h" 3798)
+  (!srcfileloc  "rtl.h" 3799)
   nil )
  (!pair  "simple_return_rtx"
   (!type already_seen 99)
-  (!srcfileloc  "rtl.h" 3797)
+  (!srcfileloc  "rtl.h" 3798)
   nil )
  (!pair  "ret_rtx"
   (!type already_seen 99)
-  (!srcfileloc  "rtl.h" 3796)
+  (!srcfileloc  "rtl.h" 3797)
   nil )
  (!pair  "pc_rtx"
   (!type already_seen 99)
-  (!srcfileloc  "rtl.h" 3795)
+  (!srcfileloc  "rtl.h" 3796)
   nil )
  (!pair  "const_tiny_rtx"
   (!type array 2373 nil  gc_used "4" 
@@ -37306,17 +37306,17 @@
     (!type already_seen 99)
    )
   )
-  (!srcfileloc  "rtl.h" 3782)
+  (!srcfileloc  "rtl.h" 3783)
   nil )
  (!pair  "const_true_rtx"
   (!type already_seen 99)
-  (!srcfileloc  "rtl.h" 3780)
+  (!srcfileloc  "rtl.h" 3781)
   nil )
  (!pair  "const_int_rtx"
   (!type array 2375 nil  gc_used "MAX_SAVED_CONST_INT * 2 + 1" 
    (!type already_seen 99)
   )
-  (!srcfileloc  "rtl.h" 3774)
+  (!srcfileloc  "rtl.h" 3775)
   nil )
  (!pair  "gcov_fn_info_ptr_type"
   (!type already_seen 23)
