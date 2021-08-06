@@ -41,9 +41,6 @@ namespace std _GLIBCXX_VISIBILITY(default)
 {
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
-  template<typename... _Elements>
-    class tuple;
-
   template<typename _Tp>
     class reference_wrapper;
 
@@ -76,8 +73,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #endif
     };
 
+#if ! __cpp_inline_variables
   template<typename _Tp, _Tp __v>
     constexpr _Tp integral_constant<_Tp, __v>::value;
+#endif
 
   /// The type used as a compile-time boolean with true value.
   using true_type =  integral_constant<bool, true>;
@@ -2678,10 +2677,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   template<typename>
     struct __is_tuple_like_impl : false_type
-    { };
-
-  template<typename... _Tps>
-    struct __is_tuple_like_impl<tuple<_Tps...>> : true_type
     { };
 
   // Internal type trait that allows us to sfinae-protect tuple_cat.

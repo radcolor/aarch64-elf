@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 12
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20210718
+#define __GLIBCXX__ 20210806
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -80,6 +80,8 @@
 //   _GLIBCXX_DEPRECATED_SUGGEST( string-literal )
 //   _GLIBCXX11_DEPRECATED
 //   _GLIBCXX11_DEPRECATED_SUGGEST( string-literal )
+//   _GLIBCXX14_DEPRECATED
+//   _GLIBCXX14_DEPRECATED_SUGGEST( string-literal )
 //   _GLIBCXX17_DEPRECATED
 //   _GLIBCXX17_DEPRECATED_SUGGEST( string-literal )
 //   _GLIBCXX20_DEPRECATED( string-literal )
@@ -103,6 +105,14 @@
 #else
 # define _GLIBCXX11_DEPRECATED
 # define _GLIBCXX11_DEPRECATED_SUGGEST(ALT)
+#endif
+
+#if defined(__DEPRECATED) && (__cplusplus >= 201403L)
+# define _GLIBCXX14_DEPRECATED _GLIBCXX_DEPRECATED
+# define _GLIBCXX14_DEPRECATED_SUGGEST(ALT) _GLIBCXX_DEPRECATED_SUGGEST(ALT)
+#else
+# define _GLIBCXX14_DEPRECATED
+# define _GLIBCXX14_DEPRECATED_SUGGEST(ALT)
 #endif
 
 #if defined(__DEPRECATED) && (__cplusplus >= 201703L)
@@ -1092,6 +1102,9 @@ namespace std
 
 /* Define if readlink is available in <unistd.h>. */
 #define _GLIBCXX_HAVE_READLINK 1
+
+/* Define to 1 if you have the `secure_getenv' function. */
+/* #undef _GLIBCXX_HAVE_SECURE_GETENV */
 
 /* Define to 1 if you have the `setenv' function. */
 /* #undef _GLIBCXX_HAVE_SETENV */

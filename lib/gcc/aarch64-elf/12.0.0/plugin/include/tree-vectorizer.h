@@ -1990,8 +1990,8 @@ extern bool vect_grouped_store_supported (tree, unsigned HOST_WIDE_INT);
 extern bool vect_store_lanes_supported (tree, unsigned HOST_WIDE_INT, bool);
 extern bool vect_grouped_load_supported (tree, bool, unsigned HOST_WIDE_INT);
 extern bool vect_load_lanes_supported (tree, unsigned HOST_WIDE_INT, bool);
-extern void vect_permute_store_chain (vec_info *,
-				      vec<tree> ,unsigned int, stmt_vec_info,
+extern void vect_permute_store_chain (vec_info *, vec<tree> &,
+				      unsigned int, stmt_vec_info,
 				      gimple_stmt_iterator *, vec<tree> *);
 extern tree vect_setup_realignment (vec_info *,
 				    stmt_vec_info, gimple_stmt_iterator *,
@@ -2072,12 +2072,12 @@ extern tree cse_and_gimplify_to_preheader (loop_vec_info, tree);
 extern void vect_slp_init (void);
 extern void vect_slp_fini (void);
 extern void vect_free_slp_instance (slp_instance);
-extern bool vect_transform_slp_perm_load (vec_info *, slp_tree, vec<tree>,
+extern bool vect_transform_slp_perm_load (vec_info *, slp_tree, const vec<tree> &,
 					  gimple_stmt_iterator *, poly_uint64,
 					  bool, unsigned *,
 					  unsigned * = nullptr, bool = false);
 extern bool vect_slp_analyze_operations (vec_info *);
-extern void vect_schedule_slp (vec_info *, vec<slp_instance>);
+extern void vect_schedule_slp (vec_info *, const vec<slp_instance> &);
 extern opt_result vect_analyze_slp (vec_info *, unsigned);
 extern bool vect_make_slp_decision (loop_vec_info);
 extern void vect_detect_hybrid_slp (loop_vec_info);
@@ -2095,7 +2095,7 @@ extern bool can_duplicate_and_interleave_p (vec_info *, unsigned int, tree,
 					    unsigned int * = NULL,
 					    tree * = NULL, tree * = NULL);
 extern void duplicate_and_interleave (vec_info *, gimple_seq *, tree,
-				      vec<tree>, unsigned int, vec<tree> &);
+				      const vec<tree> &, unsigned int, vec<tree> &);
 extern int vect_get_place_in_interleaving_chain (stmt_vec_info, stmt_vec_info);
 extern bool vect_update_shared_vectype (stmt_vec_info, tree);
 extern slp_tree vect_create_new_slp_node (unsigned, tree_code);
@@ -2191,5 +2191,109 @@ extern vect_pattern_decl_t slp_patterns[];
 
 /* Number of supported pattern matchers.  */
 extern size_t num__slp_patterns;
+
+/* ----------------------------------------------------------------------
+   Target support routines
+   -----------------------------------------------------------------------
+   The following routines are provided to simplify costing decisions in
+   target code.  Please add more as needed.  */
+
+/* Return true if an operaton of kind KIND for STMT_INFO represents
+   the extraction of an element from a vector in preparation for
+   storing the element to memory.  */
+inline bool
+vect_is_store_elt_extraction (vect_cost_for_stmt kind, stmt_vec_info stmt_info)
+{
+  return (kind == vec_to_scalar
+	  && STMT_VINFO_DATA_REF (stmt_info)
+	  && DR_IS_WRITE (STMT_VINFO_DATA_REF (stmt_info)));
+}
+
+/* Return true if STMT_INFO represents part of a reduction.  */
+inline bool
+vect_is_reduction (stmt_vec_info stmt_info)
+{
+  return (STMT_VINFO_REDUC_DEF (stmt_info)
+	  || VECTORIZABLE_CYCLE_DEF (STMT_VINFO_DEF_TYPE (stmt_info)));
+}
+
+/* If STMT_INFO describes a reduction, return the vect_reduction_type
+   of the reduction it describes, otherwise return -1.  */
+inline int
+vect_reduc_type (vec_info *vinfo, stmt_vec_info stmt_info)
+{
+  if (loop_vec_info loop_vinfo = dyn_cast<loop_vec_info> (vinfo))
+    if (STMT_VINFO_REDUC_DEF (stmt_info))
+      {
+	stmt_vec_info reduc_info = info_for_reduction (loop_vinfo, stmt_info);
+	return int (STMT_VINFO_REDUC_TYPE (reduc_info));
+      }
+  return -1;
+}
+
+/* If STMT_INFO is a COND_EXPR that includes an embedded comparison, return the
+   scalar type of the values being compared.  Return null otherwise.  */
+inline tree
+vect_embedded_comparison_type (stmt_vec_info stmt_info)
+{
+  if (auto *assign = dyn_cast<gassign *> (stmt_info->stmt))
+    if (gimple_assign_rhs_code (assign) == COND_EXPR)
+      {
+	tree cond = gimple_assign_rhs1 (assign);
+	if (COMPARISON_CLASS_P (cond))
+	  return TREE_TYPE (TREE_OPERAND (cond, 0));
+      }
+  return NULL_TREE;
+}
+
+/* If STMT_INFO is a comparison or contains an embedded comparison, return the
+   scalar type of the values being compared.  Return null otherwise.  */
+inline tree
+vect_comparison_type (stmt_vec_info stmt_info)
+{
+  if (auto *assign = dyn_cast<gassign *> (stmt_info->stmt))
+    if (TREE_CODE_CLASS (gimple_assign_rhs_code (assign)) == tcc_comparison)
+      return TREE_TYPE (gimple_assign_rhs1 (assign));
+  return vect_embedded_comparison_type (stmt_info);
+}
+
+/* Return true if STMT_INFO extends the result of a load.  */
+inline bool
+vect_is_extending_load (class vec_info *vinfo, stmt_vec_info stmt_info)
+{
+  /* Although this is quite large for an inline function, this part
+     at least should be inline.  */
+  gassign *assign = dyn_cast <gassign *> (stmt_info->stmt);
+  if (!assign || !CONVERT_EXPR_CODE_P (gimple_assign_rhs_code (assign)))
+    return false;
+
+  tree rhs = gimple_assign_rhs1 (stmt_info->stmt);
+  tree lhs_type = TREE_TYPE (gimple_assign_lhs (assign));
+  tree rhs_type = TREE_TYPE (rhs);
+  if (!INTEGRAL_TYPE_P (lhs_type)
+      || !INTEGRAL_TYPE_P (rhs_type)
+      || TYPE_PRECISION (lhs_type) <= TYPE_PRECISION (rhs_type))
+    return false;
+
+  stmt_vec_info def_stmt_info = vinfo->lookup_def (rhs);
+  return (def_stmt_info
+	  && STMT_VINFO_DATA_REF (def_stmt_info)
+	  && DR_IS_READ (STMT_VINFO_DATA_REF (def_stmt_info)));
+}
+
+/* Return true if STMT_INFO is an integer truncation.  */
+inline bool
+vect_is_integer_truncation (stmt_vec_info stmt_info)
+{
+  gassign *assign = dyn_cast <gassign *> (stmt_info->stmt);
+  if (!assign || !CONVERT_EXPR_CODE_P (gimple_assign_rhs_code (assign)))
+    return false;
+
+  tree lhs_type = TREE_TYPE (gimple_assign_lhs (assign));
+  tree rhs_type = TREE_TYPE (gimple_assign_rhs1 (assign));
+  return (INTEGRAL_TYPE_P (lhs_type)
+	  && INTEGRAL_TYPE_P (rhs_type)
+	  && TYPE_PRECISION (lhs_type) < TYPE_PRECISION (rhs_type));
+}
 
 #endif  /* GCC_TREE_VECTORIZER_H  */
