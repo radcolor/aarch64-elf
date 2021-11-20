@@ -94,13 +94,13 @@ along with GCC; see the file COPYING3.  If not see
           NEXT_PASS (pass_dse, 1);
 	  NEXT_PASS_WITH_ARG (pass_cd_dce, 1, false /* update_address_taken_p */);
 	  NEXT_PASS_WITH_ARG (pass_phiopt, 1, true /* early_p */);
-	  NEXT_PASS (pass_modref, 1);
 	  NEXT_PASS (pass_tail_recursion, 1);
 	  NEXT_PASS (pass_if_to_switch, 1);
 	  NEXT_PASS (pass_convert_switch, 1);
 	  NEXT_PASS (pass_cleanup_eh, 1);
 	  NEXT_PASS (pass_profile, 1);
 	  NEXT_PASS (pass_local_pure_const, 1);
+	  NEXT_PASS (pass_modref, 1);
 	  /* Split functions creates parts that are not run through
 	     early optimizations again.  It is thus good idea to do this
 	      late.  */
