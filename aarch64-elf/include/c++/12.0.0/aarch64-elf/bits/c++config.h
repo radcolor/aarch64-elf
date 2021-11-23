@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 12
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20211120
+#define __GLIBCXX__ 20211123
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -107,7 +107,7 @@
 # define _GLIBCXX11_DEPRECATED_SUGGEST(ALT)
 #endif
 
-#if defined(__DEPRECATED) && (__cplusplus >= 201403L)
+#if defined(__DEPRECATED) && (__cplusplus >= 201402L)
 # define _GLIBCXX14_DEPRECATED _GLIBCXX_DEPRECATED
 # define _GLIBCXX14_DEPRECATED_SUGGEST(ALT) _GLIBCXX_DEPRECATED_SUGGEST(ALT)
 #else
@@ -123,7 +123,7 @@
 # define _GLIBCXX17_DEPRECATED_SUGGEST(ALT)
 #endif
 
-#if defined(__DEPRECATED) && (__cplusplus > 201703L)
+#if defined(__DEPRECATED) && (__cplusplus >= 202002L)
 # define _GLIBCXX20_DEPRECATED(MSG) [[deprecated(MSG)]]
 # define _GLIBCXX20_DEPRECATED_SUGGEST(ALT) _GLIBCXX_DEPRECATED_SUGGEST(ALT)
 #else

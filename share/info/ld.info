@@ -7574,7 +7574,7 @@ contact that organization first.
 individuals in the file 'etc/SERVICE' in the GNU Emacs distribution.
 
    Otherwise, send bug reports for 'ld' to
-<https://www.sourceware.org/bugzilla/>.
+<https://sourceware.org/bugzilla/>.
 
    The fundamental principle of reporting bugs usefully is this: *report
 all the facts*.  If you are not sure whether to state a fact or leave it
@@ -9351,9 +9351,9 @@ Node: Canonical format327946
 Node: Reporting Bugs332274
 Node: Bug Criteria332968
 Node: Bug Reporting333667
-Node: MRI340706
-Node: GNU Free Documentation License345177
-Node: LD Index370314
+Node: MRI340702
+Node: GNU Free Documentation License345173
+Node: LD Index370310
 
 End Tag Table
 

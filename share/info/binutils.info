@@ -5197,7 +5197,7 @@ recommend you contact that organization first.
 individuals in the file 'etc/SERVICE' in the GNU Emacs distribution.
 
    In any event, we also recommend that you send bug reports for the
-binary utilities to <https://www.sourceware.org/bugzilla/>.
+binary utilities to <https://sourceware.org/bugzilla/>.
 
    The fundamental principle of reporting bugs usefully is this: *report
 all the facts*.  If you are not sure whether to state a fact or leave it
@@ -6038,8 +6038,8 @@ Node: debuginfod202048
 Node: Reporting Bugs202807
 Node: Bug Criteria203569
 Node: Bug Reporting204122
-Node: GNU Free Documentation License210993
-Node: Binutils Index236153
+Node: GNU Free Documentation License210989
+Node: Binutils Index236149
 
 End Tag Table
 
