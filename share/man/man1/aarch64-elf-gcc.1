@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "GCC 1"
-.TH GCC 1 "2021-11-23" "gcc-12.0.0" "GNU"
+.TH GCC 1 "2021-11-27" "gcc-12.0.0" "GNU"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -383,6 +383,7 @@ in the following sections.
 \&\-Wignored\-qualifiers  \-Wno\-incompatible\-pointer\-types 
 \&\-Wimplicit  \-Wimplicit\-fallthrough  \-Wimplicit\-fallthrough=\fR\fIn\fR 
 \&\fB\-Wno\-implicit\-function\-declaration  \-Wno\-implicit\-int 
+\&\-Winfinite\-recursion 
 \&\-Winit\-self  \-Winline  \-Wno\-int\-conversion  \-Wint\-in\-bool\-context 
 \&\-Wno\-int\-to\-pointer\-cast  \-Wno\-invalid\-memory\-model 
 \&\-Winvalid\-pch  \-Wjump\-misses\-init  \-Wlarger\-than=\fR\fIbyte-size\fR 
@@ -3437,17 +3438,25 @@ about \s-1ABI\s0 tags.
 .IP "\fB\-Wcomma\-subscript\fR (\*(C+ and Objective\-\*(C+ only)" 4
 .IX Item "-Wcomma-subscript ( and Objective- only)"
 Warn about uses of a comma expression within a subscripting expression.
-This usage was deprecated in \*(C+20.  However, a comma expression wrapped
-in \f(CW\*(C`( )\*(C'\fR is not deprecated.  Example:
+This usage was deprecated in \*(C+20 and is going to be removed in \*(C+23.
+However, a comma expression wrapped in \f(CW\*(C`( )\*(C'\fR is not deprecated.  Example:
 .Sp
 .Vb 4
 \&        void f(int *a, int b, int c) {
-\&            a[b,c];     // deprecated
+\&            a[b,c];     // deprecated in C++20, invalid in C++23
 \&            a[(b,c)];   // OK
 \&        }
 .Ve
 .Sp
-Enabled by default with \fB\-std=c++20\fR.
+In \*(C+23 it is valid to have comma separated expressions in a subscript
+when an overloaded subscript operator is found and supports the right
+number and types of arguments.  G++ will accept the formerly valid syntax
+for code that is not valid in \*(C+23 but used to be valid but deprecated
+in \*(C+20 with a pedantic warning that can be disabled with
+\&\fB\-Wno\-comma\-subscript\fR.
+.Sp
+Enabled by default with \fB\-std=c++20\fR unless \fB\-Wno\-deprecated\fR,
+and with \fB\-std=c++23\fR regardless of \fB\-Wno\-deprecated\fR.
 .IP "\fB\-Wctad\-maybe\-unsupported\fR (\*(C+ and Objective\-\*(C+ only)" 4
 .IX Item "-Wctad-maybe-unsupported ( and Objective- only)"
 Warn when performing class template argument deduction (\s-1CTAD\s0) on a type with
@@ -5879,6 +5888,12 @@ undefined behavior due to dereferencing a null pointer.  This option
 is only active when \fB\-fdelete\-null\-pointer\-checks\fR is active,
 which is enabled by optimizations in most targets.  The precision of
 the warnings depends on the optimization options used.
+.IP "\fB\-Winfinite\-recursion\fR" 4
+.IX Item "-Winfinite-recursion"
+Warn about infinitely recursive calls.  The warning is effective at all
+optimization levels but requires optimization in order to detect infinite
+recursion in calls between two or more functions.
+\&\fB\-Winfinite\-recursion\fR is included in \fB\-Wall\fR.
 .IP "\fB\-Winit\-self\fR (C, \*(C+, Objective-C and Objective\-\*(C+ only)" 4
 .IX Item "-Winit-self (C, , Objective-C and Objective- only)"
 Warn about uninitialized variables that are initialized with themselves.
@@ -11165,8 +11180,8 @@ Initialize automatic variables with either a pattern or with zeroes to increase
 the security and predictability of a program by preventing uninitialized memory
 disclosure and use.
 \&\s-1GCC\s0 still considers an automatic variable that doesn't have an explicit
-initializer as uninitialized, \-Wuninitialized will still report warning messages
-on such automatic variables.
+initializer as uninitialized, \fB\-Wuninitialized\fR will still report
+warning messages on such automatic variables.
 With this option, \s-1GCC\s0 will also initialize any padding of automatic variables
 that have structure or union types to zeroes.
 .Sp
