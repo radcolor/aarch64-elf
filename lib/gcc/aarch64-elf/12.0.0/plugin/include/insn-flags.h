@@ -7532,6 +7532,16 @@
 #define HAVE_reduc_smin_nan_scal_v2df (TARGET_SIMD)
 #define HAVE_reduc_smax_scal_v2df (TARGET_SIMD)
 #define HAVE_reduc_smin_scal_v2df (TARGET_SIMD)
+#define HAVE_reduc_fmax_scal_v4hf ((TARGET_SIMD) && (TARGET_SIMD_F16INST))
+#define HAVE_reduc_fmin_scal_v4hf ((TARGET_SIMD) && (TARGET_SIMD_F16INST))
+#define HAVE_reduc_fmax_scal_v8hf ((TARGET_SIMD) && (TARGET_SIMD_F16INST))
+#define HAVE_reduc_fmin_scal_v8hf ((TARGET_SIMD) && (TARGET_SIMD_F16INST))
+#define HAVE_reduc_fmax_scal_v2sf (TARGET_SIMD)
+#define HAVE_reduc_fmin_scal_v2sf (TARGET_SIMD)
+#define HAVE_reduc_fmax_scal_v4sf (TARGET_SIMD)
+#define HAVE_reduc_fmin_scal_v4sf (TARGET_SIMD)
+#define HAVE_reduc_fmax_scal_v2df (TARGET_SIMD)
+#define HAVE_reduc_fmin_scal_v2df (TARGET_SIMD)
 #define HAVE_reduc_umax_scal_v8qi (TARGET_SIMD)
 #define HAVE_reduc_umin_scal_v8qi (TARGET_SIMD)
 #define HAVE_reduc_smax_scal_v8qi (TARGET_SIMD)
@@ -9782,6 +9792,12 @@
 #define HAVE_reduc_smax_scal_vnx2df (TARGET_SVE)
 #define HAVE_reduc_smin_nan_scal_vnx2df (TARGET_SVE)
 #define HAVE_reduc_smin_scal_vnx2df (TARGET_SVE)
+#define HAVE_reduc_fmax_scal_vnx8hf (TARGET_SVE)
+#define HAVE_reduc_fmin_scal_vnx8hf (TARGET_SVE)
+#define HAVE_reduc_fmax_scal_vnx4sf (TARGET_SVE)
+#define HAVE_reduc_fmin_scal_vnx4sf (TARGET_SVE)
+#define HAVE_reduc_fmax_scal_vnx2df (TARGET_SVE)
+#define HAVE_reduc_fmin_scal_vnx2df (TARGET_SVE)
 #define HAVE_fold_left_plus_vnx8hf (TARGET_SVE)
 #define HAVE_fold_left_plus_vnx4sf (TARGET_SVE)
 #define HAVE_fold_left_plus_vnx2df (TARGET_SVE)
@@ -18691,6 +18707,16 @@ extern rtx        gen_reduc_smax_nan_scal_v2df                       (rtx, rtx);
 extern rtx        gen_reduc_smin_nan_scal_v2df                       (rtx, rtx);
 extern rtx        gen_reduc_smax_scal_v2df                           (rtx, rtx);
 extern rtx        gen_reduc_smin_scal_v2df                           (rtx, rtx);
+extern rtx        gen_reduc_fmax_scal_v4hf                           (rtx, rtx);
+extern rtx        gen_reduc_fmin_scal_v4hf                           (rtx, rtx);
+extern rtx        gen_reduc_fmax_scal_v8hf                           (rtx, rtx);
+extern rtx        gen_reduc_fmin_scal_v8hf                           (rtx, rtx);
+extern rtx        gen_reduc_fmax_scal_v2sf                           (rtx, rtx);
+extern rtx        gen_reduc_fmin_scal_v2sf                           (rtx, rtx);
+extern rtx        gen_reduc_fmax_scal_v4sf                           (rtx, rtx);
+extern rtx        gen_reduc_fmin_scal_v4sf                           (rtx, rtx);
+extern rtx        gen_reduc_fmax_scal_v2df                           (rtx, rtx);
+extern rtx        gen_reduc_fmin_scal_v2df                           (rtx, rtx);
 extern rtx        gen_reduc_umax_scal_v8qi                           (rtx, rtx);
 extern rtx        gen_reduc_umin_scal_v8qi                           (rtx, rtx);
 extern rtx        gen_reduc_smax_scal_v8qi                           (rtx, rtx);
@@ -22825,6 +22851,12 @@ extern rtx        gen_reduc_smax_nan_scal_vnx2df                     (rtx, rtx);
 extern rtx        gen_reduc_smax_scal_vnx2df                         (rtx, rtx);
 extern rtx        gen_reduc_smin_nan_scal_vnx2df                     (rtx, rtx);
 extern rtx        gen_reduc_smin_scal_vnx2df                         (rtx, rtx);
+extern rtx        gen_reduc_fmax_scal_vnx8hf                         (rtx, rtx);
+extern rtx        gen_reduc_fmin_scal_vnx8hf                         (rtx, rtx);
+extern rtx        gen_reduc_fmax_scal_vnx4sf                         (rtx, rtx);
+extern rtx        gen_reduc_fmin_scal_vnx4sf                         (rtx, rtx);
+extern rtx        gen_reduc_fmax_scal_vnx2df                         (rtx, rtx);
+extern rtx        gen_reduc_fmin_scal_vnx2df                         (rtx, rtx);
 extern rtx        gen_fold_left_plus_vnx8hf                          (rtx, rtx, rtx);
 extern rtx        gen_fold_left_plus_vnx4sf                          (rtx, rtx, rtx);
 extern rtx        gen_fold_left_plus_vnx2df                          (rtx, rtx, rtx);
