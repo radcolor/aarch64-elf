@@ -97,6 +97,9 @@
 /* Define to use type long for time_t.  */
 /* #undef _WANT_USE_LONG_TIME_T */
 
+/* Define if using gdtoa rather than legacy ldtoa.  */
+#define _WANT_USE_GDTOA 1
+
 /*
  * Iconv encodings enabled ("to" direction)
  */
