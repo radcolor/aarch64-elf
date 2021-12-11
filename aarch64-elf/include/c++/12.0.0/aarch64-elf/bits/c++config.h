@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 12
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20211207
+#define __GLIBCXX__ 20211211
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -575,6 +575,15 @@ namespace std
 #else
 # define __glibcxx_assert(cond) \
   do { __glibcxx_constexpr_assert(cond); } while (false)
+#endif
+
+// Macro indicating that TSAN is in use.
+#if __SANITIZE_THREAD__
+#  define _GLIBCXX_TSAN 1
+#elif defined __has_feature
+# if __has_feature(thread_sanitizer)
+#  define _GLIBCXX_TSAN 1
+# endif
 #endif
 
 // Macros for race detectors.
@@ -1537,9 +1546,6 @@ namespace std
    */
 #define LT_OBJDIR ".libs/"
 
-/* Defined if no way to sleep is available. */
-/* #undef NO_SLEEP */
-
 /* Name of package */
 /* #undef _GLIBCXX_PACKAGE */
 
@@ -1658,6 +1664,9 @@ namespace std
 
 /* Define if C99 llrint and llround functions are missing from <math.h>. */
 /* #undef _GLIBCXX_NO_C99_ROUNDING_FUNCS */
+
+/* Defined if no way to sleep is available. */
+/* #undef _GLIBCXX_NO_SLEEP */
 
 /* Define if ptrdiff_t is int. */
 /* #undef _GLIBCXX_PTRDIFF_T_IS_INT */
