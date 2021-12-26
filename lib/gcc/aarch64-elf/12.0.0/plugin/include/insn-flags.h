@@ -31,6 +31,9 @@
 		       rtx_mode_t (operands[3], SImode)) >= 0)
 #define HAVE_aarch64_movkdi (aarch64_movk_shift (rtx_mode_t (operands[2], DImode), \
 		       rtx_mode_t (operands[3], DImode)) >= 0)
+#define HAVE_aarch64_cpymemdi (TARGET_MOPS)
+#define HAVE_aarch64_movmemdi (TARGET_MOPS)
+#define HAVE_aarch64_setmemdi (TARGET_MOPS)
 #define HAVE_load_pair_sw_sisi (rtx_equal_p (XEXP (operands[3], 0), \
 		 plus_constant (Pmode, \
 				XEXP (operands[1], 0), \
@@ -555,6 +558,10 @@
 #define HAVE_subp (TARGET_MEMTAG)
 #define HAVE_ldg (TARGET_MEMTAG)
 #define HAVE_stg (TARGET_MEMTAG)
+#define HAVE_ld64b (TARGET_LS64)
+#define HAVE_st64b (TARGET_LS64)
+#define HAVE_st64bv (TARGET_LS64)
+#define HAVE_st64bv0 (TARGET_LS64)
 #define HAVE_aarch64_simd_dupv8qi (TARGET_SIMD)
 #define HAVE_aarch64_simd_dupv16qi (TARGET_SIMD)
 #define HAVE_aarch64_simd_dupv4hi (TARGET_SIMD)
@@ -6979,8 +6986,9 @@
 #define HAVE_movsf 1
 #define HAVE_movdf 1
 #define HAVE_movtf 1
-#define HAVE_cpymemdi (!STRICT_ALIGNMENT)
-#define HAVE_setmemdi (TARGET_SIMD)
+#define HAVE_cpymemdi (!STRICT_ALIGNMENT || TARGET_MOPS)
+#define HAVE_movmemdi (TARGET_MOPS)
+#define HAVE_setmemdi (TARGET_SIMD || TARGET_MOPS)
 #define HAVE_extendsidi2 1
 #define HAVE_zero_extendsidi2 1
 #define HAVE_extendqisi2 1
@@ -7959,6 +7967,7 @@
 #define HAVE_movoi (TARGET_SIMD)
 #define HAVE_movci (TARGET_SIMD)
 #define HAVE_movxi (TARGET_SIMD)
+#define HAVE_movv8di (TARGET_SIMD)
 #define HAVE_aarch64_ld1x3v8qi (TARGET_SIMD)
 #define HAVE_aarch64_ld1x3v4hi (TARGET_SIMD)
 #define HAVE_aarch64_ld1x3v2si (TARGET_SIMD)
@@ -10149,6 +10158,9 @@ extern rtx        gen_insv_immsi                                     (rtx, rtx, 
 extern rtx        gen_insv_immdi                                     (rtx, rtx, rtx);
 extern rtx        gen_aarch64_movksi                                 (rtx, rtx, rtx, rtx);
 extern rtx        gen_aarch64_movkdi                                 (rtx, rtx, rtx, rtx);
+extern rtx        gen_aarch64_cpymemdi                               (rtx, rtx, rtx);
+extern rtx        gen_aarch64_movmemdi                               (rtx, rtx, rtx);
+extern rtx        gen_aarch64_setmemdi                               (rtx, rtx, rtx);
 extern rtx        gen_load_pair_sw_sisi                              (rtx, rtx, rtx, rtx);
 extern rtx        gen_load_pair_sw_sfsi                              (rtx, rtx, rtx, rtx);
 extern rtx        gen_load_pair_sw_sisf                              (rtx, rtx, rtx, rtx);
@@ -10585,6 +10597,10 @@ extern rtx        gen_addg                                           (rtx, rtx, 
 extern rtx        gen_subp                                           (rtx, rtx, rtx);
 extern rtx        gen_ldg                                            (rtx, rtx, rtx);
 extern rtx        gen_stg                                            (rtx, rtx, rtx);
+extern rtx        gen_ld64b                                          (rtx, rtx);
+extern rtx        gen_st64b                                          (rtx, rtx);
+extern rtx        gen_st64bv                                         (rtx, rtx, rtx);
+extern rtx        gen_st64bv0                                        (rtx, rtx, rtx);
 extern rtx        gen_aarch64_simd_dupv8qi                           (rtx, rtx);
 extern rtx        gen_aarch64_simd_dupv16qi                          (rtx, rtx);
 extern rtx        gen_aarch64_simd_dupv4hi                           (rtx, rtx);
@@ -18163,6 +18179,7 @@ extern rtx        gen_movsf                                          (rtx, rtx);
 extern rtx        gen_movdf                                          (rtx, rtx);
 extern rtx        gen_movtf                                          (rtx, rtx);
 extern rtx        gen_cpymemdi                                       (rtx, rtx, rtx, rtx);
+extern rtx        gen_movmemdi                                       (rtx, rtx, rtx, rtx);
 extern rtx        gen_setmemdi                                       (rtx, rtx, rtx, rtx);
 extern rtx        gen_extendsidi2                                    (rtx, rtx);
 extern rtx        gen_zero_extendsidi2                               (rtx, rtx);
@@ -19134,6 +19151,7 @@ extern rtx        gen_movv4x8bf                                      (rtx, rtx);
 extern rtx        gen_movoi                                          (rtx, rtx);
 extern rtx        gen_movci                                          (rtx, rtx);
 extern rtx        gen_movxi                                          (rtx, rtx);
+extern rtx        gen_movv8di                                        (rtx, rtx);
 extern rtx        gen_aarch64_ld1x3v8qi                              (rtx, rtx);
 extern rtx        gen_aarch64_ld1x3v4hi                              (rtx, rtx);
 extern rtx        gen_aarch64_ld1x3v2si                              (rtx, rtx);
