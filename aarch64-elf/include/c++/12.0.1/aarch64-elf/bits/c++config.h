@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 12
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20220118
+#define __GLIBCXX__ 20220224
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -810,11 +810,6 @@ namespace std
 
 #undef _GLIBCXX_HAS_BUILTIN
 
-#if __cplusplus >= 202002L && __cpp_concepts && __GNUC__ >= 12
-// XXX workaround for missing feature test macro for P0848R3 (see P2493R0).
-# define _GLIBCXX_HAVE_COND_TRIVIAL_SPECIAL_MEMBERS 1
-#endif
-
 // PSTL configuration
 
 #if __cplusplus >= 201703L
@@ -918,6 +913,9 @@ namespace std
 /* Define to 1 if you have the <dirent.h> header file. */
 /* #undef _GLIBCXX_HAVE_DIRENT_H */
 
+/* Define if dirfd is available in <dirent.h>. */
+/* #undef _GLIBCXX_HAVE_DIRFD */
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 /* #undef _GLIBCXX_HAVE_DLFCN_H */
 
@@ -944,6 +942,9 @@ namespace std
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #define _GLIBCXX_HAVE_FCNTL_H 1
+
+/* Define if fdopendir is available in <dirent.h>. */
+/* #undef _GLIBCXX_HAVE_FDOPENDIR */
 
 /* Define to 1 if you have the <fenv.h> header file. */
 #define _GLIBCXX_HAVE_FENV_H 1
@@ -1327,6 +1328,9 @@ namespace std
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define _GLIBCXX_HAVE_UNISTD_H 1
+
+/* Define if unlinkat is available in <fcntl.h>. */
+#define _GLIBCXX_HAVE_UNLINKAT 1
 
 /* Define to 1 if you have the `uselocale' function. */
 /* #undef _GLIBCXX_HAVE_USELOCALE */
@@ -1852,6 +1856,14 @@ namespace std
 
 /* Define if obsolescent tmpnam is available in <stdio.h>. */
 #define _GLIBCXX_USE_TMPNAM 1
+
+/* Define if c8rtomb and mbrtoc8 functions in <uchar.h> should be imported
+   into namespace std in <cuchar> for C++20. */
+/* #undef _GLIBCXX_USE_UCHAR_C8RTOMB_MBRTOC8_CXX20 */
+
+/* Define if c8rtomb and mbrtoc8 functions in <uchar.h> should be imported
+   into namespace std in <cuchar> for -fchar8_t. */
+/* #undef _GLIBCXX_USE_UCHAR_C8RTOMB_MBRTOC8_FCHAR8_T */
 
 /* Define if utime is available in <utime.h>. */
 /* #undef _GLIBCXX_USE_UTIME */

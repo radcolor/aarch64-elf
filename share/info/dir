@@ -44,6 +44,9 @@ Individual utilities
                                                   resources.
 * windres: (binutils)windres.                   Manipulate Windows resources.
 
+Miscellaneous
+* Embed with GNU: (porting-).   Embed with GNU
+
 Software development
 * As: (as).                     The GNU assembler.
 * Bfd: (bfd).                   The Binary File Descriptor library.

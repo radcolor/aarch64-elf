@@ -853,7 +853,8 @@ extern void check_function_arguments_recurse (void (*)
 					      (void *, tree,
 					       unsigned HOST_WIDE_INT),
 					      void *, tree,
-					      unsigned HOST_WIDE_INT);
+					      unsigned HOST_WIDE_INT,
+					      opt_code);
 extern bool check_builtin_function_arguments (location_t, vec<location_t>,
 					      tree, tree, int, tree *);
 extern void check_function_format (const_tree, tree, int, tree *,
@@ -1512,9 +1513,9 @@ extern tree braced_lists_to_strings (tree, tree);
 namespace selftest {
   /* Declarations for specific families of tests within c-family,
      by source file, in alphabetical order.  */
-  extern void c_format_c_tests (void);
-  extern void c_indentation_c_tests (void);
-  extern void c_pretty_print_c_tests (void);
+  extern void c_format_cc_tests (void);
+  extern void c_indentation_cc_tests (void);
+  extern void c_pretty_print_cc_tests (void);
   extern void c_spellcheck_cc_tests (void);
 
   /* The entrypoint for running all of the above tests.  */

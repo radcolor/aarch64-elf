@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "GCC 1"
-.TH GCC 1 "2022-01-18" "gcc-12.0.1" "GNU"
+.TH GCC 1 "2022-02-24" "gcc-12.0.1" "GNU"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -352,7 +352,7 @@ in the following sections.
 \&\-Warray\-bounds  \-Warray\-bounds=\fR\fIn\fR  \fB\-Warray\-compare 
 \&\-Wno\-attributes  \-Wattribute\-alias=\fR\fIn\fR \fB\-Wno\-attribute\-alias 
 \&\-Wno\-attribute\-warning  
-\&\-Wbidi\-chars=\fR[\fBnone\fR|\fBunpaired\fR|\fBany\fR] 
+\&\-Wbidi\-chars=\fR[\fBnone\fR|\fBunpaired\fR|\fBany\fR|\fBucn\fR] 
 \&\fB\-Wbool\-compare  \-Wbool\-operation 
 \&\-Wno\-builtin\-declaration\-mismatch 
 \&\-Wno\-builtin\-macro\-redefined  \-Wc90\-c99\-compat  \-Wc99\-c11\-compat 
@@ -820,6 +820,8 @@ in the following sections.
 \&\-mtp=\fR\fIname\fR  \fB\-mtls\-dialect=\fR\fIdialect\fR 
 \&\fB\-mword\-relocations 
 \&\-mfix\-cortex\-m3\-ldrd 
+\&\-mfix\-cortex\-a57\-aes\-1742098 
+\&\-mfix\-cortex\-a72\-aes\-1655431 
 \&\-munaligned\-access 
 \&\-mneon\-for\-64bits 
 \&\-mslow\-flash\-data 
@@ -829,7 +831,8 @@ in the following sections.
 \&\-mpure\-code 
 \&\-mcmse 
 \&\-mfix\-cmse\-cve\-2021\-35465 
-\&\-mfdpic\fR
+\&\-mstack\-protector\-guard=\fR\fIguard\fR \fB\-mstack\-protector\-guard\-offset=\fR\fIoffset\fR 
+\&\fB\-mfdpic\fR
 .Sp
 \&\fI\s-1AVR\s0 Options\fR
 \&\fB\-mmcu=\fR\fImcu\fR  \fB\-mabsdata  \-maccumulate\-args 
@@ -1189,7 +1192,8 @@ See \s-1RS/6000\s0 and PowerPC Options.
 \&\-mabi=\fR\fIABI-string\fR 
 \&\fB\-mfdiv  \-mno\-fdiv 
 \&\-mdiv  \-mno\-div 
-\&\-march=\fR\fIISA-string\fR 
+\&\-misa\-spec=\fR\fIISA-spec-string\fR 
+\&\fB\-march=\fR\fIISA-string\fR 
 \&\fB\-mtune=\fR\fIprocessor-string\fR 
 \&\fB\-mpreferred\-stack\-boundary=\fR\fInum\fR 
 \&\fB\-msmall\-data\-limit=\fR\fIN\-bytes\fR 
@@ -1441,7 +1445,7 @@ See \s-1RS/6000\s0 and PowerPC Options.
 \&\fB\-mgeneral\-regs\-only  \-mcall\-ms2sysv\-xlogues \-mrelax\-cmpxchg\-loop 
 \&\-mindirect\-branch=\fR\fIchoice\fR  \fB\-mfunction\-return=\fR\fIchoice\fR 
 \&\fB\-mindirect\-branch\-register \-mharden\-sls=\fR\fIchoice\fR 
-\&\fB\-mindirect\-branch\-cs\-prefix \-mneeded\fR
+\&\fB\-mindirect\-branch\-cs\-prefix \-mneeded \-mno\-direct\-extern\-access\fR
 .Sp
 \&\fIx86 Windows Options\fR
 \&\fB\-mconsole  \-mcygwin  \-mno\-cygwin  \-mdll 
@@ -5384,8 +5388,10 @@ warns that an unrecognized option is present.
 .PP
 The effectiveness of some warnings depends on optimizations also being
 enabled. For example \fB\-Wsuggest\-final\-types\fR is more effective
-with link-time optimization and \fB\-Wmaybe\-uninitialized\fR does not
-warn at all unless optimization is enabled.
+with link-time optimization and some instances of other warnings may
+not be issued at all unless optimization is enabled.  While optimization
+in general improves the efficacy of control and data flow sensitive
+warnings, in some cases it may also cause false positives.
 .IP "\fB\-Wpedantic\fR" 4
 .IX Item "-Wpedantic"
 .PD 0
@@ -7257,20 +7263,22 @@ values.  This affects warnings from \fB\-Wconversion\fR,
 .IP "\fB\-Warray\-bounds=\fR\fIn\fR" 4
 .IX Item "-Warray-bounds=n"
 .PD
-This option is only active when \fB\-ftree\-vrp\fR is active
-(default for \fB\-O2\fR and above). It warns about subscripts to arrays
-that are always out of bounds. This warning is enabled by \fB\-Wall\fR.
+Warn about out of bounds subscripts or offsets into arrays.  This warning
+is enabled by \fB\-Wall\fR.  It is more effective when \fB\-ftree\-vrp\fR
+is active (the default for \fB\-O2\fR and above) but a subset of instances
+are issued even without optimization.
 .RS 4
 .IP "\fB\-Warray\-bounds=1\fR" 4
 .IX Item "-Warray-bounds=1"
-This is the warning level of \fB\-Warray\-bounds\fR and is enabled
+This is the default warning level of \fB\-Warray\-bounds\fR and is enabled
 by \fB\-Wall\fR; higher levels are not, and must be explicitly requested.
 .IP "\fB\-Warray\-bounds=2\fR" 4
 .IX Item "-Warray-bounds=2"
-This warning level also warns about out of bounds access for
-arrays at the end of a struct and for arrays accessed through
-pointers. This warning level may give a larger number of
-false positives and is deactivated by default.
+This warning level also warns about out of bounds accesses to trailing
+struct members of one-element array types and about
+the intermediate results of pointer arithmetic that may yield out of bounds
+values.  This warning level may give a larger number of false positives and
+is deactivated by default.
 .RE
 .RS 4
 .RE
@@ -7372,8 +7380,8 @@ Attributes considered include \f(CW\*(C`alloc_align\*(C'\fR, \f(CW\*(C`alloc_siz
 This is the default.  You can disable these warnings with either
 \&\fB\-Wno\-attribute\-alias\fR or \fB\-Wattribute\-alias=0\fR.
 .RE
-.IP "\fB\-Wbidi\-chars=\fR[\fBnone\fR|\fBunpaired\fR|\fBany\fR]" 4
-.IX Item "-Wbidi-chars=[none|unpaired|any]"
+.IP "\fB\-Wbidi\-chars=\fR[\fBnone\fR|\fBunpaired\fR|\fBany\fR|\fBucn\fR]" 4
+.IX Item "-Wbidi-chars=[none|unpaired|any|ucn]"
 Warn about possibly misleading \s-1UTF\-8\s0 bidirectional control characters in
 comments, string literals, character constants, and identifiers.  Such
 characters can change left-to-right writing direction into right-to-left
@@ -7386,6 +7394,12 @@ There are three levels of warning supported by \s-1GCC.\s0  The default is
 bidi contexts.  \fB\-Wbidi\-chars=none\fR turns the warning off.
 \&\fB\-Wbidi\-chars=any\fR warns about any use of bidirectional control
 characters.
+.Sp
+By default, this warning does not warn about UCNs.  It is, however, possible
+to turn on such checking by using \fB\-Wbidi\-chars=unpaired,ucn\fR or
+\&\fB\-Wbidi\-chars=any,ucn\fR.  Using \fB\-Wbidi\-chars=ucn\fR is valid,
+and is equivalent to \fB\-Wbidi\-chars=unpaired,ucn\fR, if no previous
+\&\fB\-Wbidi\-chars=any\fR was specified.
 .IP "\fB\-Wbool\-compare\fR" 4
 .IX Item "-Wbool-compare"
 Warn about boolean expression compared with an integer value different from
@@ -11367,7 +11381,8 @@ Initialize automatic variables with either a pattern or with zeroes to increase
 the security and predictability of a program by preventing uninitialized memory
 disclosure and use.
 \&\s-1GCC\s0 still considers an automatic variable that doesn't have an explicit
-initializer as uninitialized, \fB\-Wuninitialized\fR will still report
+initializer as uninitialized, \fB\-Wuninitialized\fR and
+\&\fB\-Wanalyzer\-use\-of\-uninitialized\-value\fR will still report
 warning messages on such automatic variables.
 With this option, \s-1GCC\s0 will also initialize any padding of automatic variables
 that have structure or union types to zeroes.
@@ -14115,6 +14130,9 @@ per supernode, before terminating analysis.
 .IX Item "ranger-logical-depth"
 Maximum depth of logical expression evaluation ranger will look through
 when evaluating outgoing edge ranges.
+.IP "\fBrelation-block-limit\fR" 4
+.IX Item "relation-block-limit"
+Maximum number of relations the oracle will register in a basic block.
 .IP "\fBopenacc-kernels\fR" 4
 .IX Item "openacc-kernels"
 Specify mode of OpenACC `kernels' constructs handling.
@@ -14589,6 +14607,35 @@ Note: By default the check is disabled at run time.  To enable it,
 add \f(CW\*(C`detect_invalid_pointer_pairs=2\*(C'\fR to the environment variable
 \&\fB\s-1ASAN_OPTIONS\s0\fR. Using \f(CW\*(C`detect_invalid_pointer_pairs=1\*(C'\fR detects
 invalid operation only when both pointers are non-null.
+.IP "\fB\-fsanitize=shadow\-call\-stack\fR" 4
+.IX Item "-fsanitize=shadow-call-stack"
+Enable ShadowCallStack, a security enhancement mechanism used to protect
+programs against return address overwrites (e.g. stack buffer overflows.)
+It works by saving a function's return address to a separately allocated
+shadow call stack in the function prologue and restoring the return address
+from the shadow call stack in the function epilogue.  Instrumentation only
+occurs in functions that need to save the return address to the stack.
+.Sp
+Currently it only supports the aarch64 platform.  It is specifically
+designed for linux kernels that enable the \s-1CONFIG_SHADOW_CALL_STACK\s0 option.
+For the user space programs, runtime support is not currently provided
+in libc and libgcc.  Users who want to use this feature in user space need
+to provide their own support for the runtime.  It should be noted that
+this may cause the \s-1ABI\s0 rules to be broken.
+.Sp
+On aarch64, the instrumentation makes use of the platform register \f(CW\*(C`x18\*(C'\fR.
+This generally means that any code that may run on the same thread as code
+compiled with ShadowCallStack must be compiled with the flag
+\&\fB\-ffixed\-x18\fR, otherwise functions compiled without
+\&\fB\-ffixed\-x18\fR might clobber \f(CW\*(C`x18\*(C'\fR and so corrupt the shadow
+stack pointer.
+.Sp
+Also, because there is no userspace runtime support, code compiled with
+ShadowCallStack cannot use exception handling.  Use \fB\-fno\-exceptions\fR
+to turn off exceptions.
+.Sp
+See <\fBhttps://clang.llvm.org/docs/ShadowCallStack.html\fR> for more
+details.
 .IP "\fB\-fsanitize=thread\fR" 4
 .IX Item "-fsanitize=thread"
 Enable ThreadSanitizer, a fast data race detector.
@@ -20504,6 +20551,20 @@ Some Cortex\-M3 cores can cause data corruption when \f(CW\*(C`ldrd\*(C'\fR inst
 with overlapping destination and base registers are used.  This option avoids
 generating these instructions.  This option is enabled by default when
 \&\fB\-mcpu=cortex\-m3\fR is specified.
+.IP "\fB\-mfix\-cortex\-a57\-aes\-1742098\fR" 4
+.IX Item "-mfix-cortex-a57-aes-1742098"
+.PD 0
+.IP "\fB\-mno\-fix\-cortex\-a57\-aes\-1742098\fR" 4
+.IX Item "-mno-fix-cortex-a57-aes-1742098"
+.IP "\fB\-mfix\-cortex\-a72\-aes\-1655431\fR" 4
+.IX Item "-mfix-cortex-a72-aes-1655431"
+.IP "\fB\-mno\-fix\-cortex\-a72\-aes\-1655431\fR" 4
+.IX Item "-mno-fix-cortex-a72-aes-1655431"
+.PD
+Enable (disable) mitigation for an erratum on Cortex\-A57 and
+Cortex\-A72 that affects the \s-1AES\s0 cryptographic instructions.  This
+option is enabled by default when either \fB\-mcpu=cortex\-a57\fR or
+\&\fB\-mcpu=cortex\-a72\fR is specified.
 .IP "\fB\-munaligned\-access\fR" 4
 .IX Item "-munaligned-access"
 .PD 0
@@ -20570,6 +20631,17 @@ in some M\-profile devices when using \s-1CMSE\s0 (\s-1CVE\-2021\-365465\s0).  T
 enabled by default when the option \fB\-mcpu=\fR is used with
 \&\f(CW\*(C`cortex\-m33\*(C'\fR, \f(CW\*(C`cortex\-m35p\*(C'\fR or \f(CW\*(C`cortex\-m55\*(C'\fR.  The option
 \&\fB\-mno\-fix\-cmse\-cve\-2021\-35465\fR can be used to disable the mitigation.
+.IP "\fB\-mstack\-protector\-guard=\fR\fIguard\fR" 4
+.IX Item "-mstack-protector-guard=guard"
+.PD 0
+.IP "\fB\-mstack\-protector\-guard\-offset=\fR\fIoffset\fR" 4
+.IX Item "-mstack-protector-guard-offset=offset"
+.PD
+Generate stack protection code using canary at \fIguard\fR.  Supported
+locations are \fBglobal\fR for a global canary or \fBtls\fR for a
+canary accessible via the \s-1TLS\s0 register. The option
+\&\fB\-mstack\-protector\-guard\-offset=\fR is for use with
+\&\fB\-fstack\-protector\-guard=tls\fR and not for use in user-land code.
 .IP "\fB\-mfdpic\fR" 4
 .IX Item "-mfdpic"
 .PD 0
@@ -21535,7 +21607,7 @@ The options \fB\-metrax4\fR and \fB\-metrax100\fR are synonyms for
 .IX Item "-mno-mul-bug-workaround"
 .PD
 Work around a bug in the \f(CW\*(C`muls\*(C'\fR and \f(CW\*(C`mulu\*(C'\fR instructions for \s-1CPU\s0
-models where it applies.  This option is active by default.
+models where it applies.  This option is disabled by default.
 .IP "\fB\-mpdebug\fR" 4
 .IX Item "-mpdebug"
 Enable CRIS-specific verbose debug-related information in the assembly
@@ -26231,9 +26303,10 @@ strings must be lower-case.  Valid \s-1ISA\s0 strings include \fBsm_30\fR and
 \&\fBsm_35\fR.  The default \s-1ISA\s0 is sm_35.
 .IP "\fB\-mptx=\fR\fIversion-string\fR" 4
 .IX Item "-mptx=version-string"
-Generate code for given the specified \s-1PTX\s0 version (e.g. \fB6.3\fR).
-Valid version strings include \fB3.1\fR and \fB6.3\fR.  The default \s-1PTX\s0
-version is 3.1.
+Generate code for given the specified \s-1PTX\s0 version (e.g. \fB7.0\fR).
+Valid version strings include \fB3.1\fR, \fB6.0\fR, \fB6.3\fR, and
+\&\fB7.0\fR.  The default \s-1PTX\s0 version is 6.0, unless a higher minimal
+version is required for specified \s-1PTX ISA\s0 via option \fB\-misa=\fR.
 .IP "\fB\-mmainkernel\fR" 4
 .IX Item "-mmainkernel"
 Link in code for a _\|_main kernel.  This is for stand-alone instead of
@@ -26564,6 +26637,30 @@ is to use them if the specified architecture has these instructions.
 Do or don't use hardware instructions for integer division.  This requires the
 M extension.  The default is to use them if the specified architecture has
 these instructions.
+.IP "\fB\-misa\-spec=\fR\fIISA-spec-string\fR" 4
+.IX Item "-misa-spec=ISA-spec-string"
+Specify the version of the RISC-V Unprivileged (formerly User-Level)
+\&\s-1ISA\s0 specification to produce code conforming to.  The possibilities
+for \fIISA-spec-string\fR are:
+.RS 4
+.ie n .IP "2.2" 4
+.el .IP "\f(CW2.2\fR" 4
+.IX Item "2.2"
+Produce code conforming to version 2.2.
+.ie n .IP "20190608" 4
+.el .IP "\f(CW20190608\fR" 4
+.IX Item "20190608"
+Produce code conforming to version 20190608.
+.ie n .IP "20191213" 4
+.el .IP "\f(CW20191213\fR" 4
+.IX Item "20191213"
+Produce code conforming to version 20191213.
+.RE
+.RS 4
+.Sp
+The default is \fB\-misa\-spec=20191213\fR unless \s-1GCC\s0 has been configured
+with \fB\-\-with\-isa\-spec=\fR specifying a different default version.
+.RE
 .IP "\fB\-march=\fR\fIISA-string\fR" 4
 .IX Item "-march=ISA-string"
 Generate code for given RISC-V \s-1ISA\s0 (e.g. \fBrv64im\fR).  \s-1ISA\s0 strings must be
@@ -29879,72 +29976,75 @@ instruction set is used, so the code runs on all i686 family chips.
 When used with \fB\-mtune\fR, it has the same meaning as \fBgeneric\fR.
 .IP "\fBpentium2\fR" 4
 .IX Item "pentium2"
-Intel Pentium \s-1II CPU,\s0 based on Pentium Pro core with \s-1MMX\s0 instruction set
-support.
+Intel Pentium \s-1II CPU,\s0 based on Pentium Pro core with \s-1MMX\s0 and \s-1FXSR\s0 instruction
+set support.
 .IP "\fBpentium3\fR" 4
 .IX Item "pentium3"
 .PD 0
 .IP "\fBpentium3m\fR" 4
 .IX Item "pentium3m"
 .PD
-Intel Pentium \s-1III CPU,\s0 based on Pentium Pro core with \s-1MMX\s0 and \s-1SSE\s0 instruction
-set support.
+Intel Pentium \s-1III CPU,\s0 based on Pentium Pro core with \s-1MMX, FXSR\s0 and \s-1SSE\s0
+instruction set support.
 .IP "\fBpentium-m\fR" 4
 .IX Item "pentium-m"
 Intel Pentium M; low-power version of Intel Pentium \s-1III CPU\s0
-with \s-1MMX, SSE\s0 and \s-1SSE2\s0 instruction set support.  Used by Centrino notebooks.
+with \s-1MMX, SSE, SSE2\s0 and \s-1FXSR\s0 instruction set support.  Used by Centrino
+notebooks.
 .IP "\fBpentium4\fR" 4
 .IX Item "pentium4"
 .PD 0
 .IP "\fBpentium4m\fR" 4
 .IX Item "pentium4m"
 .PD
-Intel Pentium 4 \s-1CPU\s0 with \s-1MMX, SSE\s0 and \s-1SSE2\s0 instruction set support.
+Intel Pentium 4 \s-1CPU\s0 with \s-1MMX, SSE, SSE2\s0 and \s-1FXSR\s0 instruction set support.
 .IP "\fBprescott\fR" 4
 .IX Item "prescott"
-Improved version of Intel Pentium 4 \s-1CPU\s0 with \s-1MMX, SSE, SSE2\s0 and \s-1SSE3\s0 instruction
-set support.
+Improved version of Intel Pentium 4 \s-1CPU\s0 with \s-1MMX, SSE, SSE2, SSE3\s0 and \s-1FXSR\s0
+instruction set support.
 .IP "\fBnocona\fR" 4
 .IX Item "nocona"
 Improved version of Intel Pentium 4 \s-1CPU\s0 with 64\-bit extensions, \s-1MMX, SSE,
-SSE2\s0 and \s-1SSE3\s0 instruction set support.
+SSE2, SSE3\s0 and \s-1FXSR\s0 instruction set support.
 .IP "\fBcore2\fR" 4
 .IX Item "core2"
-Intel Core 2 \s-1CPU\s0 with 64\-bit extensions, \s-1MMX, SSE, SSE2, SSE3\s0 and \s-1SSSE3\s0
-instruction set support.
+Intel Core 2 \s-1CPU\s0 with 64\-bit extensions, \s-1MMX, SSE, SSE2, SSE3, SSSE3, CX16,
+SAHF\s0 and \s-1FXSR\s0 instruction set support.
 .IP "\fBnehalem\fR" 4
 .IX Item "nehalem"
 Intel Nehalem \s-1CPU\s0 with 64\-bit extensions, \s-1MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2\s0 and \s-1POPCNT\s0 instruction set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF\s0 and \s-1FXSR\s0 instruction set support.
 .IP "\fBwestmere\fR" 4
 .IX Item "westmere"
 Intel Westmere \s-1CPU\s0 with 64\-bit extensions, \s-1MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2, POPCNT, AES\s0 and \s-1PCLMUL\s0 instruction set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR\s0 and \s-1PCLMUL\s0 instruction set support.
 .IP "\fBsandybridge\fR" 4
 .IX Item "sandybridge"
 Intel Sandy Bridge \s-1CPU\s0 with 64\-bit extensions, \s-1MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2, POPCNT, AVX, AES\s0 and \s-1PCLMUL\s0 instruction set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE\s0 and \s-1PCLMUL\s0 instruction set
+support.
 .IP "\fBivybridge\fR" 4
 .IX Item "ivybridge"
 Intel Ivy Bridge \s-1CPU\s0 with 64\-bit extensions, \s-1MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2, POPCNT, AVX, AES, PCLMUL, FSGSBASE, RDRND\s0 and F16C
-instruction set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE, RDRND\s0
+and F16C instruction set support.
 .IP "\fBhaswell\fR" 4
 .IX Item "haswell"
 Intel Haswell \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2, POPCNT, AVX, AVX2, AES, PCLMUL, FSGSBASE, RDRND, FMA,
-BMI, BMI2\s0 and F16C instruction set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE, RDRND,
+F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE\s0 and \s-1HLE\s0 instruction set support.
 .IP "\fBbroadwell\fR" 4
 .IX Item "broadwell"
 Intel Broadwell \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2, POPCNT, AVX, AVX2, AES, PCLMUL, FSGSBASE, RDRND, FMA, BMI, BMI2,
-F16C, RDSEED ADCX\s0 and \s-1PREFETCHW\s0 instruction set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE, RDRND,
+F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX\s0 and \s-1PREFETCHW\s0
+instruction set support.
 .IP "\fBskylake\fR" 4
 .IX Item "skylake"
 Intel Skylake \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2, POPCNT, AVX, AVX2, AES, PCLMUL, FSGSBASE, RDRND, FMA,
-BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC\s0 and \s-1XSAVES\s0
-instruction set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE, RDRND,
+F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX, PREFETCHW, AES,
+CLFLUSHOPT, XSAVEC, XSAVES\s0 and \s-1SGX\s0 instruction set support.
 .IP "\fBbonnell\fR" 4
 .IX Item "bonnell"
 Intel Bonnell \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3\s0 and \s-1SSSE3\s0
@@ -29952,113 +30052,121 @@ instruction set support.
 .IP "\fBsilvermont\fR" 4
 .IX Item "silvermont"
 Intel Silvermont \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2, POPCNT, AES, PREFETCHW, PCLMUL\s0 and \s-1RDRND\s0 instruction set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, PCLMUL, PREFETCHW\s0 and \s-1RDRND\s0
+instruction set support.
 .IP "\fBgoldmont\fR" 4
 .IX Item "goldmont"
 Intel Goldmont \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2, POPCNT, AES, PREFETCHW, PCLMUL, RDRND, XSAVE, XSAVEC, XSAVES,
-XSAVEOPT\s0 and \s-1FSGSBASE\s0 instruction set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, PCLMUL, PREFETCHW, RDRND, AES, SHA,
+RDSEED, XSAVE, XSAVEC, XSAVES, XSAVEOPT, CLFLUSHOPT\s0 and \s-1FSGSBASE\s0 instruction
+set support.
 .IP "\fBgoldmont-plus\fR" 4
 .IX Item "goldmont-plus"
 Intel Goldmont Plus \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3,
-SSSE3, SSE4.1, SSE4.2, POPCNT, AES, PREFETCHW, PCLMUL, RDRND, XSAVE, XSAVEC,
-XSAVES, XSAVEOPT, FSGSBASE, PTWRITE, RDPID, SGX\s0 and \s-1UMIP\s0 instruction set support.
+SSSE3, SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, PCLMUL, PREFETCHW, RDRND, AES,
+SHA, RDSEED, XSAVE, XSAVEC, XSAVES, XSAVEOPT, CLFLUSHOPT, FSGSBASE, PTWRITE,
+RDPID\s0 and \s-1SGX\s0 instruction set support.
 .IP "\fBtremont\fR" 4
 .IX Item "tremont"
 Intel Tremont \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2, POPCNT, AES, PREFETCHW, PCLMUL, RDRND, XSAVE, XSAVEC, XSAVES,
-XSAVEOPT, FSGSBASE, PTWRITE, RDPID, SGX, UMIP,\s0 GFNI-SSE, \s-1CLWB, MOVDIRI,
-MOVDIR64B, CLDEMOTE\s0 and \s-1WAITPKG\s0 instruction set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, PCLMUL, PREFETCHW, RDRND, AES, SHA,
+RDSEED, XSAVE, XSAVEC, XSAVES, XSAVEOPT, CLFLUSHOPT, FSGSBASE, PTWRITE, RDPID,
+SGX, CLWB,\s0 GFNI-SSE, \s-1MOVDIRI, MOVDIR64B, CLDEMOTE\s0 and \s-1WAITPKG\s0 instruction set
+support.
 .IP "\fBknl\fR" 4
 .IX Item "knl"
 Intel Knight's Landing \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3,
-SSSE3, SSE4.1, SSE4.2, POPCNT, AVX, AVX2, AES, PCLMUL, FSGSBASE, RDRND, FMA,
-BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, PREFETCHWT1, AVX512F, AVX512PF,
-AVX512ER\s0 and \s-1AVX512CD\s0 instruction set support.
+SSSE3, SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE,
+RDRND, F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX, PREFETCHW,
+AVX512PF, AVX512ER, AVX512F, AVX512CD\s0 and \s-1PREFETCHWT1\s0 instruction set support.
 .IP "\fBknm\fR" 4
 .IX Item "knm"
 Intel Knights Mill \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3,
-SSSE3, SSE4.1, SSE4.2, POPCNT, AVX, AVX2, AES, PCLMUL, FSGSBASE, RDRND, FMA,
-BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, PREFETCHWT1, AVX512F, AVX512PF,
-AVX512ER, AVX512CD, AVX5124VNNIW, AVX5124FMAPS\s0 and \s-1AVX512VPOPCNTDQ\s0 instruction
-set support.
+SSSE3, SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE,
+RDRND, F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX, PREFETCHW,
+AVX512PF, AVX512ER, AVX512F, AVX512CD\s0 and \s-1PREFETCHWT1, AVX5124VNNIW,
+AVX5124FMAPS\s0 and \s-1AVX512VPOPCNTDQ\s0 instruction set support.
 .IP "\fBskylake\-avx512\fR" 4
 .IX Item "skylake-avx512"
 Intel Skylake Server \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3,
-SSSE3, SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE, RDRND, FMA,
-BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC, XSAVES, AVX512F,
-CLWB, AVX512VL, AVX512BW, AVX512DQ\s0 and \s-1AVX512CD\s0 instruction set support.
+SSSE3, SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE,
+RDRND, F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX, PREFETCHW,
+AES, CLFLUSHOPT, XSAVEC, XSAVES, SGX, AVX512F, CLWB, AVX512VL, AVX512BW,
+AVX512DQ\s0 and \s-1AVX512CD\s0 instruction set support.
 .IP "\fBcannonlake\fR" 4
 .IX Item "cannonlake"
 Intel Cannonlake Server \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2,
-SSE3, SSSE3, SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE,
-RDRND, FMA, BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC,
-XSAVES, AVX512F, AVX512VL, AVX512BW, AVX512DQ, AVX512CD, AVX512VBMI,
-AVX512IFMA, SHA\s0 and \s-1UMIP\s0 instruction set support.
+SSE3, SSSE3, SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL,
+FSGSBASE, RDRND, F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX,
+PREFETCHW, AES, CLFLUSHOPT, XSAVEC, XSAVES, SGX, AVX512F, AVX512VL, AVX512BW,
+AVX512DQ, AVX512CD, PKU, AVX512VBMI, AVX512IFMA\s0 and \s-1SHA\s0 instruction set
+support.
 .IP "\fBicelake-client\fR" 4
 .IX Item "icelake-client"
-Intel Icelake Client \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2,
-SSE3, SSSE3, SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE,
-RDRND, FMA, BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC,
-XSAVES, AVX512F, AVX512VL, AVX512BW, AVX512DQ, AVX512CD, AVX512VBMI,
-AVX512IFMA, SHA, CLWB, UMIP, RDPID, GFNI, AVX512VBMI2, AVX512VPOPCNTDQ,
-AVX512BITALG, AVX512VNNI, VPCLMULQDQ, VAES\s0 instruction set support.
+Intel Icelake Client \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3,
+SSSE3, SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE,
+RDRND, F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX, PREFETCHW,
+AES, CLFLUSHOPT, XSAVEC, XSAVES, SGX, AVX512F, AVX512VL, AVX512BW, AVX512DQ,
+AVX512CD, PKU, AVX512VBMI, AVX512IFMA, SHA, AVX512VNNI, GFNI, VAES, AVX512VBMI2
+, VPCLMULQDQ, AVX512BITALG, RDPID\s0 and \s-1AVX512VPOPCNTDQ\s0 instruction set support.
 .IP "\fBicelake-server\fR" 4
 .IX Item "icelake-server"
-Intel Icelake Server \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2,
-SSE3, SSSE3, SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE,
-RDRND, FMA, BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC,
-XSAVES, AVX512F, AVX512VL, AVX512BW, AVX512DQ, AVX512CD, AVX512VBMI,
-AVX512IFMA, SHA, CLWB, UMIP, RDPID, GFNI, AVX512VBMI2, AVX512VPOPCNTDQ,
-AVX512BITALG, AVX512VNNI, VPCLMULQDQ, VAES, PCONFIG\s0 and \s-1WBNOINVD\s0 instruction
-set support.
+Intel Icelake Server \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3,
+SSSE3, SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE,
+RDRND, F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX, PREFETCHW,
+AES, CLFLUSHOPT, XSAVEC, XSAVES, SGX, AVX512F, AVX512VL, AVX512BW, AVX512DQ,
+AVX512CD, PKU, AVX512VBMI, AVX512IFMA, SHA, AVX512VNNI, GFNI, VAES, AVX512VBMI2
+, VPCLMULQDQ, AVX512BITALG, RDPID, AVX512VPOPCNTDQ, PCONFIG, WBNOINVD\s0 and \s-1CLWB\s0
+instruction set support.
 .IP "\fBcascadelake\fR" 4
 .IX Item "cascadelake"
 Intel Cascadelake \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE, RDRND, FMA, BMI,
-BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC, XSAVES, AVX512F, CLWB,
-AVX512VL, AVX512BW, AVX512DQ, AVX512CD\s0 and \s-1AVX512VNNI\s0 instruction set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE, RDRND,
+F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX, PREFETCHW, AES,
+CLFLUSHOPT, XSAVEC, XSAVES, SGX, AVX512F, CLWB, AVX512VL, AVX512BW, AVX512DQ,
+AVX512CD\s0 and \s-1AVX512VNNI\s0 instruction set support.
 .IP "\fBcooperlake\fR" 4
 .IX Item "cooperlake"
 Intel cooperlake \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE, RDRND, FMA, BMI,
-BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC, XSAVES, AVX512F, CLWB,
-AVX512VL, AVX512BW, AVX512DQ, AVX512CD, AVX512VNNI\s0 and \s-1AVX512BF16\s0 instruction
-set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE, RDRND,
+F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX, PREFETCHW, AES,
+CLFLUSHOPT, XSAVEC, XSAVES, SGX, AVX512F, CLWB, AVX512VL, AVX512BW, AVX512DQ,
+AVX512CD, AVX512VNNI\s0 and \s-1AVX512BF16\s0 instruction set support.
 .IP "\fBtigerlake\fR" 4
 .IX Item "tigerlake"
 Intel Tigerlake \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3, SSSE3,
-SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE, RDRND, FMA, BMI,
-BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC, XSAVES, AVX512F,
-AVX512VL, AVX512BW, AVX512DQ, AVX512CD, AVX512VBMI, AVX512IFMA, SHA, CLWB, UMIP,
-RDPID, GFNI, AVX512VBMI2, AVX512VPOPCNTDQ, AVX512BITALG, AVX512VNNI, VPCLMULQDQ,
-VAES, PCONFIG, WBNOINVD, MOVDIRI, MOVDIR64B, AVX512VP2INTERSECT\s0 and \s-1KEYLOCKER\s0
-instruction set support.
+SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE, RDRND,
+F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX, PREFETCHW, AES,
+CLFLUSHOPT, XSAVEC, XSAVES, SGX, AVX512F, AVX512VL, AVX512BW, AVX512DQ, AVX512CD
+PKU, AVX512VBMI, AVX512IFMA, SHA, AVX512VNNI, GFNI, VAES, AVX512VBMI2,
+VPCLMULQDQ, AVX512BITALG, RDPID, AVX512VPOPCNTDQ, MOVDIRI, MOVDIR64B, CLWB,
+AVX512VP2INTERSECT\s0 and \s-1KEYLOCKER\s0 instruction set support.
 .IP "\fBsapphirerapids\fR" 4
 .IX Item "sapphirerapids"
 Intel sapphirerapids \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3,
-SSSE3, SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE, RDRND,
-FMA, BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC, XSAVES,
-AVX512F, CLWB, AVX512VL, AVX512BW, AVX512DQ, AVX512CD, AVX512VNNI, AVX512BF16,
-MOVDIRI, MOVDIR64B, AVX512VP2INTERSECT, ENQCMD, CLDEMOTE, PTWRITE, WAITPKG,
-SERIALIZE, TSXLDTRK, UINTR, AMX\-BF16,\s0 AMX-TILE, \s-1AMX\-INT8\s0 and AVX-VNNI
-instruction set support.
+SSSE3, SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE,
+RDRND, F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX, PREFETCHW,
+AES, CLFLUSHOPT, XSAVEC, XSAVES, SGX, AVX512F, CLWB, AVX512VL, AVX512BW,
+AVX512DQ, AVX512CD, AVX512VNNI, AVX512BF16 MOVDIRI, MOVDIR64B,
+AVX512VP2INTERSECT, ENQCMD, CLDEMOTE, PTWRITE, WAITPKG, SERIALIZE, TSXLDTRK,
+UINTR, AMX\-BF16,\s0 AMX-TILE, \s-1AMX\-INT8,\s0 AVX-VNNI and \s-1AVX512FP16\s0 instruction set
+support.
 .IP "\fBalderlake\fR" 4
 .IX Item "alderlake"
 Intel Alderlake \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3, SSSE3,
 SSE4.1, SSE4.2, POPCNT, AES, PREFETCHW, PCLMUL, RDRND, XSAVE, XSAVEC, XSAVES,
-XSAVEOPT, FSGSBASE, PTWRITE, RDPID, SGX, UMIP,\s0 GFNI-SSE, \s-1CLWB, MOVDIRI,
-MOVDIR64B, CLDEMOTE, WAITPKG, ADCX, AVX, AVX2, BMI, BMI2, F16C, FMA, LZCNT,
-PCONFIG, PKU, VAES, VPCLMULQDQ, SERIALIZE, HRESET, KL, WIDEKL\s0 and AVX-VNNI
-instruction set support.
+XSAVEOPT, FSGSBASE, PTWRITE, RDPID, SGX,\s0 GFNI-SSE, \s-1CLWB, MOVDIRI, MOVDIR64B,
+CLDEMOTE, WAITPKG, ADCX, AVX, AVX2, BMI, BMI2, F16C, FMA, LZCNT, PCONFIG, PKU,
+VAES, VPCLMULQDQ, SERIALIZE, HRESET, KL, WIDEKL\s0 and AVX-VNNI instruction set
+support.
 .IP "\fBrocketlake\fR" 4
 .IX Item "rocketlake"
-Intel Rocketlake \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2,
-SSE3, SSSE3, SSE4.1, SSE4.2, POPCNT, PKU, AVX, AVX2, AES, PCLMUL, FSGSBASE,
-RDRND, FMA, BMI, BMI2, F16C, RDSEED, ADCX, PREFETCHW, CLFLUSHOPT, XSAVEC,
-XSAVES, AVX512F, AVX512VL, AVX512BW, AVX512DQ, AVX512CD, AVX512VBMI,
-AVX512IFMA, SHA, CLWB, UMIP, RDPID, GFNI, AVX512VBMI2, AVX512VPOPCNTDQ,
-AVX512BITALG, AVX512VNNI, VPCLMULQDQ, VAES\s0 instruction set support.
+Intel Rocketlake \s-1CPU\s0 with 64\-bit extensions, \s-1MOVBE, MMX, SSE, SSE2, SSE3, SSSE3
+, SSE4.1, SSE4.2, POPCNT, CX16, SAHF, FXSR, AVX, XSAVE, PCLMUL, FSGSBASE, RDRND,
+F16C, AVX2, BMI, BMI2, LZCNT, FMA, MOVBE, HLE, RDSEED, ADCX, PREFETCHW, AES,
+CLFLUSHOPT, XSAVEC, XSAVES, AVX512F, AVX512VL, AVX512BW, AVX512DQ, AVX512CD
+PKU, AVX512VBMI, AVX512IFMA, SHA, AVX512VNNI, GFNI, VAES, AVX512VBMI2,
+VPCLMULQDQ, AVX512BITALG, RDPID\s0 and \s-1AVX512VPOPCNTDQ\s0 instruction set support.
 .IP "\fBk6\fR" 4
 .IX Item "k6"
 \&\s-1AMD K6 CPU\s0 with \s-1MMX\s0 instruction set support.
@@ -31555,6 +31663,17 @@ x32 environments.
 .PD
 Emit \s-1GNU_PROPERTY_X86_ISA_1_NEEDED GNU\s0 property for Linux target to
 indicate the micro-architecture \s-1ISA\s0 level required to execute the binary.
+.IP "\fB\-mno\-direct\-extern\-access\fR" 4
+.IX Item "-mno-direct-extern-access"
+Without \fB\-fpic\fR nor \fB\-fPIC\fR, always use the \s-1GOT\s0 pointer
+to access external symbols.  With \fB\-fpic\fR or \fB\-fPIC\fR,
+treat access to protected symbols as local symbols.  The default is
+\&\fB\-mdirect\-extern\-access\fR.
+.Sp
+\&\fBWarning:\fR shared libraries compiled with
+\&\fB\-mno\-direct\-extern\-access\fR and executable compiled with
+\&\fB\-mdirect\-extern\-access\fR may not be binary compatible if
+protected symbols are used in shared libraries and executable.
 .PP
 \fIx86 Windows Options\fR
 .IX Subsection "x86 Windows Options"

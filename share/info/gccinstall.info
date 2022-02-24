@@ -128,11 +128,6 @@ ISO C++11 compiler
      existing GCC binary (version 4.8 or later) because source code for
      language frontends other than C might use GCC extensions.
 
-     Note that to bootstrap GCC with versions of GCC earlier than 4.8,
-     you may need to use '--disable-stage1-checking', though
-     bootstrapping the compiler with such earlier compilers is strongly
-     discouraged.
-
 C standard library and headers
 
      In order to build GCC, the C standard library and headers must be
@@ -296,7 +291,7 @@ MPFR Library version 3.1.0 (or later)
 MPC Library version 1.0.1 (or later)
 
      Necessary to build GCC.  It can be downloaded from
-     <http://www.multiprecision.org/mpc/>.  If an MPC source
+     <https://www.multiprecision.org/mpc/>.  If an MPC source
      distribution is found in a subdirectory of your GCC sources named
      'mpc', it will be built together with GCC. Alternatively, if MPC is
      already installed but it is not in your default library search
@@ -1360,6 +1355,19 @@ option.
      On certain targets this option sets the default stack clash
      protection guard size as a power of two in bytes.  On AArch64 SIZE
      is required to be either 12 (4KB) or 16 (64KB).
+
+'--with-isa-spec=ISA-SPEC-STRING'
+     On RISC-V targets specify the default version of the RISC-V
+     Unprivileged (formerly User-Level) ISA specification to produce
+     code conforming to.  The possibilities for ISA-SPEC-STRING are:
+     '2.2'
+          Produce code conforming to version 2.2.
+     '20190608'
+          Produce code conforming to version 20190608.
+     '20191213'
+          Produce code conforming to version 20191213.
+     In the absence of this configuration option the default version is
+     20191213.
 
 '--enable-__cxa_atexit'
      Define if you want to use __cxa_atexit, rather than atexit, to
@@ -4805,7 +4813,7 @@ Concept Index
 * Menu:
 
 * Binaries:                              Binaries.           (line    6)
-* build_configargs:                      Configuration.      (line 1806)
+* build_configargs:                      Configuration.      (line 1819)
 * Configuration:                         Configuration.      (line    6)
 * Downloading GCC:                       Downloading the source.
                                                              (line    6)
@@ -4814,7 +4822,7 @@ Concept Index
 * FDL, GNU Free Documentation License:   GNU Free Documentation License.
                                                              (line    6)
 * Host specific installation:            Specific.           (line    6)
-* host_configargs:                       Configuration.      (line 1810)
+* host_configargs:                       Configuration.      (line 1823)
 * Installing GCC: Binaries:              Binaries.           (line    6)
 * Installing GCC: Building:              Building.           (line    6)
 * Installing GCC: Configuration:         Configuration.      (line    6)
@@ -4824,7 +4832,7 @@ Concept Index
 * Specific installation notes:           Specific.           (line    6)
 * Target specific installation:          Specific.           (line    6)
 * Target specific installation notes:    Specific.           (line    6)
-* target_configargs:                     Configuration.      (line 1814)
+* target_configargs:                     Configuration.      (line 1827)
 * Testing:                               Testing.            (line    6)
 * Testsuite:                             Testing.            (line    6)
 
@@ -4834,104 +4842,104 @@ Tag Table:
 Node: Top1696
 Node: Installing GCC2201
 Node: Prerequisites3837
-Ref: GNAT-prerequisite5903
-Ref: GDC-prerequisite7300
-Node: Downloading the source16651
-Node: Configuration18322
-Ref: with-gnu-as36609
-Ref: with-as37504
-Ref: with-gnu-ld38913
-Ref: WithAixSoname63620
-Ref: AixLdCommand64281
-Node: Building106446
-Node: Testing122653
-Node: Final install130484
-Node: Binaries135785
-Node: Specific136892
-Ref: aarch64-x-x137426
-Ref: alpha-x-x139446
-Ref: amd64-x-solaris2139660
-Ref: amdgcn-x-amdhsa139742
-Ref: arc-x-elf32140268
-Ref: arc-linux-uclibc140444
-Ref: arm-x-eabi140585
-Ref: avr140838
-Ref: bfin141419
-Ref: cr16141682
-Ref: cris142098
-Ref: dos142796
-Ref: epiphany-x-elf143119
-Ref: x-x-freebsd143224
-Ref: ft32-x-elf144872
-Ref: h8300-hms144970
-Ref: hppa-hp-hpux145322
-Ref: hppa-hp-hpux10147694
-Ref: hppa-hp-hpux11148107
-Ref: x-x-linux-gnu153509
-Ref: ix86-x-linux153832
-Ref: ix86-x-solaris2154145
-Ref: ia64-x-linux155221
-Ref: ia64-x-hpux155468
-Ref: x-ibm-aix156023
-Ref: TransferAixShobj159685
-Ref: iq2000-x-elf163495
-Ref: lm32-x-elf163635
-Ref: lm32-x-uclinux163739
-Ref: m32c-x-elf163867
-Ref: m32r-x-elf163969
-Ref: m68k-x-x164071
-Ref: m68k-x-uclinux165109
-Ref: microblaze-x-elf165354
-Ref: mips-x-x165473
-Ref: moxie-x-elf167383
-Ref: msp430-x-elf167430
-Ref: nds32le-x-elf167987
-Ref: nds32be-x-elf168059
-Ref: nvptx-x-none168128
-Ref: or1k-x-elf168691
-Ref: or1k-x-linux168822
-Ref: powerpc-x-x168903
-Ref: powerpc-x-darwin169094
-Ref: powerpc-x-elf169589
-Ref: powerpc-x-linux-gnu169674
-Ref: powerpc-x-netbsd169769
-Ref: powerpc-x-eabisim169857
-Ref: powerpc-x-eabi169983
-Ref: powerpcle-x-elf170059
-Ref: powerpcle-x-eabisim170151
-Ref: powerpcle-x-eabi170284
-Ref: rl78-x-elf170367
-Ref: riscv32-x-elf170473
-Ref: riscv32-x-linux170662
-Ref: riscv64-x-elf170819
-Ref: riscv64-x-linux171008
-Ref: rx-x-elf171165
-Ref: s390-x-linux171211
-Ref: s390x-x-linux171283
-Ref: s390x-ibm-tpf171370
-Ref: x-x-solaris2171501
-Ref: sparc-x-x174608
-Ref: sparc-sun-solaris2175110
-Ref: sparc-x-linux176253
-Ref: sparc64-x-solaris2176284
-Ref: sparcv9-x-solaris2177002
-Ref: c6x-x-x177089
-Ref: tilegx-*-linux177181
-Ref: tilegxbe-*-linux177323
-Ref: tilepro-*-linux177466
-Ref: visium-x-elf177587
-Ref: x-x-vxworks177695
-Ref: x86-64-x-x179218
-Ref: x86-64-x-solaris2179546
-Ref: xtensa-x-elf180196
-Ref: xtensa-x-linux180867
-Ref: windows181208
-Ref: x-x-cygwin182998
-Ref: x-x-mingw32183551
-Ref: older183933
-Ref: elf186050
-Node: GNU Free Documentation License186308
-Node: Concept Index211443
+Ref: GNAT-prerequisite5680
+Ref: GDC-prerequisite7077
+Node: Downloading the source16429
+Node: Configuration18100
+Ref: with-gnu-as36387
+Ref: with-as37282
+Ref: with-gnu-ld38691
+Ref: WithAixSoname63926
+Ref: AixLdCommand64587
+Node: Building106752
+Node: Testing122959
+Node: Final install130790
+Node: Binaries136091
+Node: Specific137198
+Ref: aarch64-x-x137732
+Ref: alpha-x-x139752
+Ref: amd64-x-solaris2139966
+Ref: amdgcn-x-amdhsa140048
+Ref: arc-x-elf32140574
+Ref: arc-linux-uclibc140750
+Ref: arm-x-eabi140891
+Ref: avr141144
+Ref: bfin141725
+Ref: cr16141988
+Ref: cris142404
+Ref: dos143102
+Ref: epiphany-x-elf143425
+Ref: x-x-freebsd143530
+Ref: ft32-x-elf145178
+Ref: h8300-hms145276
+Ref: hppa-hp-hpux145628
+Ref: hppa-hp-hpux10148000
+Ref: hppa-hp-hpux11148413
+Ref: x-x-linux-gnu153815
+Ref: ix86-x-linux154138
+Ref: ix86-x-solaris2154451
+Ref: ia64-x-linux155527
+Ref: ia64-x-hpux155774
+Ref: x-ibm-aix156329
+Ref: TransferAixShobj159991
+Ref: iq2000-x-elf163801
+Ref: lm32-x-elf163941
+Ref: lm32-x-uclinux164045
+Ref: m32c-x-elf164173
+Ref: m32r-x-elf164275
+Ref: m68k-x-x164377
+Ref: m68k-x-uclinux165415
+Ref: microblaze-x-elf165660
+Ref: mips-x-x165779
+Ref: moxie-x-elf167689
+Ref: msp430-x-elf167736
+Ref: nds32le-x-elf168293
+Ref: nds32be-x-elf168365
+Ref: nvptx-x-none168434
+Ref: or1k-x-elf168997
+Ref: or1k-x-linux169128
+Ref: powerpc-x-x169209
+Ref: powerpc-x-darwin169400
+Ref: powerpc-x-elf169895
+Ref: powerpc-x-linux-gnu169980
+Ref: powerpc-x-netbsd170075
+Ref: powerpc-x-eabisim170163
+Ref: powerpc-x-eabi170289
+Ref: powerpcle-x-elf170365
+Ref: powerpcle-x-eabisim170457
+Ref: powerpcle-x-eabi170590
+Ref: rl78-x-elf170673
+Ref: riscv32-x-elf170779
+Ref: riscv32-x-linux170968
+Ref: riscv64-x-elf171125
+Ref: riscv64-x-linux171314
+Ref: rx-x-elf171471
+Ref: s390-x-linux171517
+Ref: s390x-x-linux171589
+Ref: s390x-ibm-tpf171676
+Ref: x-x-solaris2171807
+Ref: sparc-x-x174914
+Ref: sparc-sun-solaris2175416
+Ref: sparc-x-linux176559
+Ref: sparc64-x-solaris2176590
+Ref: sparcv9-x-solaris2177308
+Ref: c6x-x-x177395
+Ref: tilegx-*-linux177487
+Ref: tilegxbe-*-linux177629
+Ref: tilepro-*-linux177772
+Ref: visium-x-elf177893
+Ref: x-x-vxworks178001
+Ref: x86-64-x-x179524
+Ref: x86-64-x-solaris2179852
+Ref: xtensa-x-elf180502
+Ref: xtensa-x-linux181173
+Ref: windows181514
+Ref: x-x-cygwin183304
+Ref: x-x-mingw32183857
+Ref: older184239
+Ref: elf186356
+Node: GNU Free Documentation License186614
+Node: Concept Index211749
 
 End Tag Table
 
