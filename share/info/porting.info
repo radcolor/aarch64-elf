@@ -98,6 +98,7 @@ new library is called Libgloss, for Gnu Low-level OS support.
 * Building libgloss::           How to configure and built libgloss
                                 for a target.
 * Board support::               How to add support for a new board.
+* Build System Internals::      How the libgloss build system works.
 
 
 File: porting.info,  Node: Supported targets,  Next: Building libgloss,  Prev: Libgloss,  Up: Libgloss
@@ -230,7 +231,7 @@ File: porting.info,  Node: Building libgloss,  Next: Board support,  Prev: Suppo
 ======================================
 
 Libgloss uses an autoconf based script to configure.  Autoconf scripts
-are portable shell scripts that are generated from a configure.in file.
+are portable shell scripts that are generated from a configure.ac file.
 Configure input scripts are based themselves on m4.  Most configure
 scripts run a series of tests to determine features the various
 supported features of the target.  For features that can't be determined
@@ -291,7 +292,7 @@ with a fresh, and uninstalled object tree.  It also makes it easier to
 debug the other tools using libgloss's test suites.
 
 
-File: porting.info,  Node: Board support,  Prev: Building libgloss,  Up: Libgloss
+File: porting.info,  Node: Board support,  Next: Build System Internals,  Prev: Building libgloss,  Up: Libgloss
 
 1.3 Adding Support for a New Board
 ==================================
@@ -335,6 +336,56 @@ targets.  Add '${SURF_CRT0}' to the dependencies for the 'all' target
 and add '${SURF_INSTALL}' to the dependencies for the 'install' target.
 Now, when libgloss is built and installed, support for your BSP will be
 installed as well.
+
+
+File: porting.info,  Node: Build System Internals,  Prev: Board support,  Up: Libgloss
+
+1.4 Build System Internals
+==========================
+
+As noted previously, Libgloss uses GNU Autotools (*note GNU Autoconf:
+(autoconf)Top. & *note GNU Automake: (automake)Top.) to build.  *note
+GNU Libtool: (libtool)Top. is not used as Libgloss only produces objects
+and static archives, and *note GNU Automake: (automake)Top. is capable
+of handling that.
+
+   If you're editing any of these files and want to regenerate them,
+simply run 'autoreconf'.  It will take care of the rest.
+
+   Tool versions are strictly controlled.  You must use GNU Autoconf
+2.69 and GNU Automake 1.15.1 to generate the build files.  If your
+system does not include them, you can manually download and install them
+into your home directory.
+
+   All of the common configure logic lives in 'configure.ac'.  It checks
+for supported targets and creates the makefiles.  Any architecture that
+wishes to run custom configure tests should store them in 'acinclude.m4'
+in their respective subdirectory and then use 'm4_include' in
+'configure.ac'.  Make sure to avoid running excessive tests for all
+targets, and avoid using generic names that can collide with other
+architectures - the build uses a flat namespace that is shared among
+everyone.
+
+   Libgloss has partially converted to *note GNU Automake:
+(automake)Top.  The top-level directory uses it with 'Makefile.am', as
+do a few subdirectories with their 'Makefile.inc' fragments.  The other
+subdirectories still use hand written 'Makefile.in' files.  One day,
+they should get converted over too.  Patches welcome!
+
+   For directories that have converted to *note GNU Automake:
+(automake)Top, a non-recursive build is used.  That means only a single
+Makefile is created in the top-level, and no Makefiles are created in
+subdirectories.  Make must be run in the top-level at all times.
+
+   The 'config/*.mh' and 'config/*.mt' files are only used by the non-
+Automake files (i.e., the 'Makefile.in' files).  They can be ignored for
+any target that has migrated to *note GNU Automake: (automake)Top.
+
+   Libgloss automatically builds itself for all multilib configurations
+that the active toolchain supports.  This logic is provided by common
+code from the combined toolchain source tree.  This should *not* be
+confused with the Libgloss-specific 'multi-build.in' file.  That is used
+by a few ports to further produce multiple targets.
 
 
 File: porting.info,  Node: GCC,  Next: Libraries,  Prev: Libgloss,  Up: Top
@@ -2074,42 +2125,43 @@ A.6 Led control sample
 Tag Table:
 Node: Top789
 Node: Libgloss1576
-Node: Supported targets4684
-Node: Blackfin5220
-Node: Sparclite5495
-Node: CPU326417
-Node: Mips7717
-Node: PA-RISC9035
-Node: Building libgloss10564
-Node: Board support14174
-Node: GCC16283
-Node: Overview17574
-Node: Options19803
-Node: GCC Options20479
-Node: GAS Options20774
-Node: LD Options20869
-Node: Libraries20944
-Node: Crt021256
-Node: Linker Scripts27521
-Node: What to do now32381
-Node: Libc33275
-Node: I/O Support35125
-Node: Memory Support35246
-Node: Misc Support36706
-Node: Debugging37879
-Node: GDB41450
-Node: GNU remote protocol42850
-Node: Exception handler49352
-Node: ROM monitors50771
-Node: Other remote protocols51749
-Node: Binutils51908
-Node: Code Listings51991
-Node: idp.ld52462
-Node: crt0.S54209
-Node: glue.c56812
-Node: mvme.S61700
-Node: io.c65847
-Node: leds.c66457
+Node: Supported targets4753
+Node: Blackfin5289
+Node: Sparclite5564
+Node: CPU326486
+Node: Mips7786
+Node: PA-RISC9104
+Node: Building libgloss10633
+Node: Board support14243
+Node: Build System Internals16383
+Node: GCC18833
+Node: Overview20124
+Node: Options22353
+Node: GCC Options23029
+Node: GAS Options23324
+Node: LD Options23419
+Node: Libraries23494
+Node: Crt023806
+Node: Linker Scripts30071
+Node: What to do now34931
+Node: Libc35825
+Node: I/O Support37675
+Node: Memory Support37796
+Node: Misc Support39256
+Node: Debugging40429
+Node: GDB44000
+Node: GNU remote protocol45400
+Node: Exception handler51902
+Node: ROM monitors53321
+Node: Other remote protocols54299
+Node: Binutils54458
+Node: Code Listings54541
+Node: idp.ld55012
+Node: crt0.S56759
+Node: glue.c59362
+Node: mvme.S64250
+Node: io.c68397
+Node: leds.c69007
 
 End Tag Table
 
