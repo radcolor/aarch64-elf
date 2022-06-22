@@ -372,9 +372,6 @@
 /* Verify _REENT_CHECK macros allocate memory successfully. */
 #define _REENT_CHECK_VERIFY 1
 
-/* Define if declare atexit data as global. */
-/* #undef _REENT_GLOBAL_ATEXIT */
-
 /* Define if using retargetable functions for default lock routines. */
 /* #undef _RETARGETABLE_LOCKING */
 
@@ -396,10 +393,8 @@
 /* Positional argument support in printf functions enabled. */
 /* #undef _WANT_IO_POS_ARGS */
 
-/* Define to move the stdio stream FILE objects out of struct _reent and make
-   them global. The stdio stream pointers of struct _reent are initialized to
-   point to the global stdio FILE stream objects. */
-/* #undef _WANT_REENT_GLOBAL_STDIO_STREAMS */
+/* Define to enable backward binary compatibility for struct _reent. */
+/* #undef _WANT_REENT_BACKWARD_BINARY_COMPAT */
 
 /* Optional reentrant struct support. Used mostly on platforms with very
    restricted storage. */
