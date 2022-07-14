@@ -301,6 +301,8 @@ struct _rand48 {
 #define _REENT_ASCTIME_SIZE 26
 #define _REENT_SIGNAL_SIZE 24
 
+#ifndef _REENT_THREAD_LOCAL
+
 #ifdef _REENT_BACKWARD_BINARY_COMPAT
 #define _REENT_INIT_RESERVED_0 0,
 #define _REENT_INIT_RESERVED_1 0,
@@ -531,7 +533,6 @@ struct _reent
 #define _REENT_MP_FREELIST(ptr)	((ptr)->_mp->_freelist)
 #define _REENT_ASCTIME_BUF(ptr)	((ptr)->_asctime_buf)
 #define _REENT_TM(ptr)		((ptr)->_localtime_buf)
-#define _REENT_EMERGENCY(ptr)	((ptr)->_emergency)
 #define _REENT_STRTOK_LAST(ptr)	((ptr)->_misc->_strtok_last)
 #define _REENT_MBLEN_STATE(ptr)	((ptr)->_misc->_mblen_state)
 #define _REENT_MBTOWC_STATE(ptr)((ptr)->_misc->_mbtowc_state)
@@ -704,7 +705,6 @@ struct _reent
 #define _REENT_MP_FREELIST(ptr)	((ptr)->_freelist)
 #define _REENT_ASCTIME_BUF(ptr)	((ptr)->_new._reent._asctime_buf)
 #define _REENT_TM(ptr)		(&(ptr)->_new._reent._localtime_buf)
-#define _REENT_EMERGENCY(ptr)	((ptr)->_emergency)
 #define _REENT_STRTOK_LAST(ptr)	((ptr)->_new._reent._strtok_last)
 #define _REENT_MBLEN_STATE(ptr)	((ptr)->_new._reent._mblen_state)
 #define _REENT_MBTOWC_STATE(ptr)((ptr)->_new._reent._mbtowc_state)
@@ -720,15 +720,22 @@ struct _reent
 
 #endif /* !_REENT_SMALL */
 
+#define _REENT_CLEANUP(_ptr)	((_ptr)->__cleanup)
+#define _REENT_CVTBUF(_ptr)	((_ptr)->_cvtbuf)
+#define _REENT_CVTLEN(_ptr)	((_ptr)->_cvtlen)
+#define _REENT_EMERGENCY(_ptr)	((_ptr)->_emergency)
+#define _REENT_ERRNO(_ptr)	((_ptr)->_errno)
+#define _REENT_INC(_ptr)	((_ptr)->_inc)
+#define _REENT_LOCALE(_ptr)	((_ptr)->_locale)
+#define _REENT_SIG_FUNC(_ptr)	((_ptr)->_sig_func)
+#define _REENT_STDIN(_ptr)	((_ptr)->_stdin)
+#define _REENT_STDOUT(_ptr)	((_ptr)->_stdout)
+#define _REENT_STDERR(_ptr)	((_ptr)->_stderr)
+
 #define _REENT_INIT_PTR(var) \
   { memset((var), 0, sizeof(*(var))); \
     _REENT_INIT_PTR_ZEROED(var); \
   }
-
-/* This value is used in stdlib/misc.c.  reent/reent.c has to know it
-   as well to make sure the freelist is correctly free'd.  Therefore
-   we define it here, rather than in stdlib/misc.c, as before. */
-#define _Kmax (sizeof (size_t) << 3)
 
 /*
  * All references to struct _reent are via this pointer.
@@ -747,13 +754,6 @@ extern struct _reent *_impure_ptr __ATTRIBUTE_IMPURE_PTR__;
 
 extern struct _reent _impure_data __ATTRIBUTE_IMPURE_DATA__;
 
-extern void (*__stdio_exit_handler) (void);
-
-void _reclaim_reent (struct _reent *);
-
-extern int _fwalk_sglue (struct _reent *, int (*)(struct _reent *, __FILE *),
-			 struct _glue *);
-
 /* #define _REENT_ONLY define this to get only reentrant routines */
 
 #if defined(__DYNAMIC_REENT__) && !defined(__SINGLE_THREAD__)
@@ -765,10 +765,114 @@ extern int _fwalk_sglue (struct _reent *, int (*)(struct _reent *, __FILE *),
 # define _REENT _impure_ptr
 #endif /* __SINGLE_THREAD__ || !__DYNAMIC_REENT__ */
 
+#define _REENT_IS_NULL(_ptr) ((_ptr) == NULL)
+
 #define _GLOBAL_REENT (&_impure_data)
+
+#else /* _REENT_THREAD_LOCAL */
+
+#define _REENT NULL
+#define _GLOBAL_REENT NULL
+
+/*
+ * Since _REENT is defined as NULL, this macro ensures that calls to
+ * CHECK_INIT() do not automatically fail.
+ */
+#define _REENT_IS_NULL(_ptr) 0
+
+#define _REENT_CHECK_RAND48(ptr)	/* nothing */
+#define _REENT_CHECK_MP(ptr)		/* nothing */
+#define _REENT_CHECK_TM(ptr)		/* nothing */
+#define _REENT_CHECK_ASCTIME_BUF(ptr)	/* nothing */
+#define _REENT_CHECK_EMERGENCY(ptr)	/* nothing */
+#define _REENT_CHECK_MISC(ptr)		/* nothing */
+#define _REENT_CHECK_SIGNAL_BUF(ptr)	/* nothing */
+
+extern _Thread_local char _tls_asctime_buf[_REENT_ASCTIME_SIZE];
+#define _REENT_ASCTIME_BUF(_ptr) (_tls_asctime_buf)
+extern _Thread_local char *_tls_cvtbuf;
+#define _REENT_CVTBUF(_ptr) (_tls_cvtbuf)
+extern _Thread_local int _tls_cvtlen;
+#define _REENT_CVTLEN(_ptr) (_tls_cvtlen)
+extern _Thread_local void (*_tls_cleanup)(struct _reent *);
+#define _REENT_CLEANUP(_ptr) (_tls_cleanup)
+extern _Thread_local char _tls_emergency;
+#define _REENT_EMERGENCY(_ptr) (_tls_emergency)
+extern _Thread_local int _tls_errno;
+#define _REENT_ERRNO(_ptr) (_tls_errno)
+extern _Thread_local int _tls_getdate_err;
+#define _REENT_GETDATE_ERR_P(_ptr) (&_tls_getdate_err)
+extern _Thread_local int _tls_inc;
+#define _REENT_INC(_ptr) (_tls_inc)
+extern _Thread_local char _tls_l64a_buf[8];
+#define _REENT_L64A_BUF(_ptr) (_tls_l64a_buf)
+extern _Thread_local struct __locale_t *_tls_locale;
+#define _REENT_LOCALE(_ptr) (_tls_locale)
+extern _Thread_local _mbstate_t _tls_mblen_state;
+#define _REENT_MBLEN_STATE(_ptr) (_tls_mblen_state)
+extern _Thread_local _mbstate_t _tls_mbrlen_state;
+#define _REENT_MBRLEN_STATE(_ptr) (_tls_mbrlen_state)
+extern _Thread_local _mbstate_t _tls_mbrtowc_state;
+#define _REENT_MBRTOWC_STATE(_ptr) (_tls_mbrtowc_state)
+extern _Thread_local _mbstate_t _tls_mbsrtowcs_state;
+#define _REENT_MBSRTOWCS_STATE(_ptr) (_tls_mbsrtowcs_state)
+extern _Thread_local _mbstate_t _tls_mbtowc_state;
+#define _REENT_MBTOWC_STATE(_ptr) (_tls_mbtowc_state)
+extern _Thread_local struct _Bigint **_tls_mp_freelist;
+#define _REENT_MP_FREELIST(_ptr) (_tls_mp_freelist)
+extern _Thread_local struct _Bigint *_tls_mp_p5s;
+#define _REENT_MP_P5S(_ptr) (_tls_mp_p5s)
+extern _Thread_local struct _Bigint *_tls_mp_result;
+#define _REENT_MP_RESULT(_ptr) (_tls_mp_result)
+extern _Thread_local int _tls_mp_result_k;
+#define _REENT_MP_RESULT_K(_ptr) (_tls_mp_result_k)
+extern _Thread_local unsigned short _tls_rand48_add;
+#define _REENT_RAND48_ADD(_ptr) (_tls_rand48_add)
+extern _Thread_local unsigned short _tls_rand48_mult[3];
+#define _REENT_RAND48_MULT(_ptr) (_tls_rand48_mult)
+extern _Thread_local unsigned short _tls_rand48_seed[3];
+#define _REENT_RAND48_SEED(_ptr) (_tls_rand48_seed)
+extern _Thread_local unsigned long long _tls_rand_next;
+#define _REENT_RAND_NEXT(_ptr) (_tls_rand_next)
+extern _Thread_local void (**_tls_sig_func)(int);
+#define _REENT_SIG_FUNC(_ptr) (_tls_sig_func)
+extern _Thread_local char _tls_signal_buf[_REENT_SIGNAL_SIZE];
+#define _REENT_SIGNAL_BUF(_ptr) (_tls_signal_buf)
+extern _Thread_local int _tls_gamma_signgam;
+#define _REENT_SIGNGAM(_ptr) (_tls_gamma_signgam)
+extern _Thread_local __FILE *_tls_stdin;
+#define _REENT_STDIN(_ptr) (_tls_stdin)
+extern _Thread_local __FILE *_tls_stdout;
+#define _REENT_STDOUT(_ptr) (_tls_stdout)
+extern _Thread_local __FILE *_tls_stderr;
+#define _REENT_STDERR(_ptr) (_tls_stderr)
+extern _Thread_local char *_tls_strtok_last;
+#define _REENT_STRTOK_LAST(_ptr) (_tls_strtok_last)
+extern _Thread_local struct __tm _tls_localtime_buf;
+#define _REENT_TM(_ptr) (&_tls_localtime_buf)
+extern _Thread_local _mbstate_t _tls_wctomb_state;
+#define _REENT_WCTOMB_STATE(_ptr) (_tls_wctomb_state)
+extern _Thread_local _mbstate_t _tls_wcrtomb_state;
+#define _REENT_WCRTOMB_STATE(_ptr) (_tls_wcrtomb_state)
+extern _Thread_local _mbstate_t _tls_wcsrtombs_state;
+#define _REENT_WCSRTOMBS_STATE(_ptr) (_tls_wcsrtombs_state)
+
+#endif /* !_REENT_THREAD_LOCAL */
+
+/* This value is used in stdlib/misc.c.  reent/reent.c has to know it
+   as well to make sure the freelist is correctly free'd.  Therefore
+   we define it here, rather than in stdlib/misc.c, as before. */
+#define _Kmax (sizeof (size_t) << 3)
 
 extern struct _atexit *__atexit; /* points to head of LIFO stack */
 extern struct _atexit __atexit0; /* one guaranteed table, required by ANSI */
+
+extern void (*__stdio_exit_handler) (void);
+
+void _reclaim_reent (struct _reent *);
+
+extern int _fwalk_sglue (struct _reent *, int (*)(struct _reent *, __FILE *),
+			 struct _glue *);
 
 #ifdef __cplusplus
 }
