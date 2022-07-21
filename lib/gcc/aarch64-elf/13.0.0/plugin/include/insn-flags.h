@@ -8376,6 +8376,7 @@
 #define HAVE_vec_extractv8hfv4hf (TARGET_SIMD)
 #define HAVE_vec_extractv8bfv4bf (TARGET_SIMD)
 #define HAVE_vec_extractv4sfv2sf (TARGET_SIMD)
+#define HAVE_vec_extractv2div1di (TARGET_SIMD)
 #define HAVE_vec_extractv2dfv1df (TARGET_SIMD)
 #define HAVE_aarch64_fmlal_lowv2sf (TARGET_F16FML)
 #define HAVE_aarch64_fmlsl_lowv2sf (TARGET_F16FML)
@@ -19550,6 +19551,7 @@ extern rtx        gen_vec_extractv4siv2si                            (rtx, rtx, 
 extern rtx        gen_vec_extractv8hfv4hf                            (rtx, rtx, rtx);
 extern rtx        gen_vec_extractv8bfv4bf                            (rtx, rtx, rtx);
 extern rtx        gen_vec_extractv4sfv2sf                            (rtx, rtx, rtx);
+extern rtx        gen_vec_extractv2div1di                            (rtx, rtx, rtx);
 extern rtx        gen_vec_extractv2dfv1df                            (rtx, rtx, rtx);
 extern rtx        gen_aarch64_fmlal_lowv2sf                          (rtx, rtx, rtx, rtx);
 extern rtx        gen_aarch64_fmlsl_lowv2sf                          (rtx, rtx, rtx, rtx);
