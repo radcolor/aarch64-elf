@@ -317,13 +317,15 @@
 #define HAVE_clzdi2 1
 #define HAVE_clrsbsi2 1
 #define HAVE_clrsbdi2 1
-#define HAVE_rbitsi2 1
-#define HAVE_rbitdi2 1
+#define HAVE_aarch64_rbitsi 1
+#define HAVE_aarch64_rbitdi 1
 #define HAVE_ctzsi2 1
 #define HAVE_ctzdi2 1
 #define HAVE_bswapsi2 1
 #define HAVE_bswapdi2 1
 #define HAVE_bswaphi2 1
+#define HAVE_aarch64_rev16si 1
+#define HAVE_aarch64_rev16di 1
 #define HAVE_rev16si2 (aarch_rev16_shleft_mask_imm_p (operands[3], SImode) \
    && aarch_rev16_shright_mask_imm_p (operands[2], SImode))
 #define HAVE_rev16di2 (aarch_rev16_shleft_mask_imm_p (operands[3], DImode) \
@@ -10349,13 +10351,15 @@ extern rtx        gen_clzsi2                                         (rtx, rtx);
 extern rtx        gen_clzdi2                                         (rtx, rtx);
 extern rtx        gen_clrsbsi2                                       (rtx, rtx);
 extern rtx        gen_clrsbdi2                                       (rtx, rtx);
-extern rtx        gen_rbitsi2                                        (rtx, rtx);
-extern rtx        gen_rbitdi2                                        (rtx, rtx);
+extern rtx        gen_aarch64_rbitsi                                 (rtx, rtx);
+extern rtx        gen_aarch64_rbitdi                                 (rtx, rtx);
 extern rtx        gen_ctzsi2                                         (rtx, rtx);
 extern rtx        gen_ctzdi2                                         (rtx, rtx);
 extern rtx        gen_bswapsi2                                       (rtx, rtx);
 extern rtx        gen_bswapdi2                                       (rtx, rtx);
 extern rtx        gen_bswaphi2                                       (rtx, rtx);
+extern rtx        gen_aarch64_rev16si                                (rtx, rtx);
+extern rtx        gen_aarch64_rev16di                                (rtx, rtx);
 extern rtx        gen_rev16si2                                       (rtx, rtx, rtx, rtx);
 extern rtx        gen_rev16di2                                       (rtx, rtx, rtx, rtx);
 extern rtx        gen_rev16si2_alt                                   (rtx, rtx, rtx, rtx);
